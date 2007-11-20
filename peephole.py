@@ -10,6 +10,8 @@ import sys
 import time
 import usb
 
+#  dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"stuffs"
+
 LCD_INTERFACE = 'org.orospakr.peephole.LCD'
 PEEPHOLE_WELL_KNOWN_NAME = 'org.orospakr.peephole'
 LCD_PATH_BASE = '/org/orospakr/peephole/LCDs/'
@@ -43,10 +45,11 @@ class PicoLCD(object):
         interface = self.lcd.claimInterface(0)
         interface_alt = self.lcd.setAltInterface(0)
 
-    def set_text(self, text, row, col, data):
+    def set_text(self, text, row, col):
         assert(len(text) < 256)
-        fmt = 'ccccp'
-        packet = struct.pack(fmt, PICOLCD_DISPLAY_CMD, row, col, len(text), text)
+        fmt = 'ccccs'
+        print type(text)
+        packet = struct.pack(fmt, chr(self.PICOLCD_DISPLAY_CMD), chr(row), chr(col), chr(len(text)), text)
         self.lcd.interruptWrite(usb.ENDPOINT_OUT, packet, 1000)
 
 class DBusLCD(dbus.service.Object):
@@ -69,6 +72,7 @@ class DBusLCD(dbus.service.Object):
                          in_signature='is', out_signature='')
     def DisplayText(self, line_number, text):
         print _("User asked to display: %s") % text
+        self.lcd.set_text(str(text), 0, 0)
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='', out_signature='i')
