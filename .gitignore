@@ -1,0 +1,7 @@
+*.pyc
+*.pyo
+semantic.cache
+*~
+.coverage
+.project
+.pydevproject
