@@ -5,3 +5,4 @@ semantic.cache
 .coverage
 .project
 .pydevproject
+\#*\#

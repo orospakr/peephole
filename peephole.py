@@ -36,8 +36,8 @@ class PicoLCD(object):
         lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
         if lcd_device is None:
             sys.exit(_("No such device."))
-        self.lcd = self.lcd.open()
-        self.lcd.detachKernelDriver()
+        self.lcd = lcd_device.open()
+        self.lcd.detachKernelDriver(0)
         self.lcd.setConfiguration(1)
         time.sleep(0.001) # for shame
         interface = self.lcd.claimInterface(0)
