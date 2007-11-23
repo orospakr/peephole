@@ -35,22 +35,33 @@ class PicoLCD(object):
     PICOLCD_DISPLAY_CMD = 0x98
 
     def __init__(self):
-        lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
-        if lcd_device is None:
+        self.lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
+        if self.lcd_device is None:
             sys.exit(_("No such device."))
-        self.lcd = lcd_device.open()
-        self.lcd.detachKernelDriver(0)
-        self.lcd.setConfiguration(1)
+        self.lcd_handle = self.lcd_device.open()
+        self.lcd_handle.detachKernelDriver(0)
+        self.lcd_configuration = self.lcd_device.configurations[0]
+        print("%s" % self.lcd_device.configurations[0])
+        self.lcd_handle.setConfiguration(self.lcd_configuration)
         time.sleep(0.001) # for shame
-        interface = self.lcd.claimInterface(0)
-        interface_alt = self.lcd.setAltInterface(0)
+
+        # we know it's the first interface's only option (there are
+        # no alternate interfaces)
+        self.lcd_interface = self.lcd_configuration.interfaces[0][0]
+        #self.lcd_handle.detachKernelDriver(self.lcd_interface)
+        interface = self.lcd_handle.claimInterface(self.lcd_interface)
+        interface_alt = self.lcd_handle.setAltInterface(self.lcd_interface)
+
+        self.lcd_interface = self.lcd_configuration.interfaces[0][0]
 
     def set_text(self, text, row, col):
         assert(len(text) < 256)
+
+        endp = self.lcd_interface.endpoints[1]
         fmt = 'ccccs'
         print type(text)
         packet = struct.pack(fmt, chr(self.PICOLCD_DISPLAY_CMD), chr(row), chr(col), chr(len(text)), text)
-        self.lcd.interruptWrite(usb.ENDPOINT_OUT, packet, 1000)
+        self.lcd_handle.interruptWrite(endp.address, packet, 1000)
 
 class DBusLCD(dbus.service.Object):
     '''Object exposing an LCD over D-Bus.
