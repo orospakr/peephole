@@ -58,9 +58,9 @@ class PicoLCD(object):
         assert(len(text) < 256)
 
         endp = self.lcd_interface.endpoints[1]
-        fmt = 'ccccs'
-        print type(text)
-        packet = struct.pack(fmt, chr(self.PICOLCD_DISPLAY_CMD), chr(row), chr(col), chr(len(text)), text)
+        fmt = 'BBBB%is' % len(text)
+        print len(text)
+        packet = struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
 
 class DBusLCD(dbus.service.Object):
