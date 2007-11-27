@@ -8,6 +8,7 @@ import dbus.mainloop.glib
 import struct
 import sys
 import time
+import threading
 import usb
 
 #  dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"stuffs"
@@ -39,7 +40,11 @@ class PicoLCD(object):
         if self.lcd_device is None:
             sys.exit(_("No such device."))
         self.lcd_handle = self.lcd_device.open()
+        #try:
         self.lcd_handle.detachKernelDriver(0)
+        #    pass
+        #except usb.USBError, e:
+        #    print _("Could not detach kernel driver.")
         self.lcd_configuration = self.lcd_device.configurations[0]
         print("%s" % self.lcd_device.configurations[0])
         self.lcd_handle.setConfiguration(self.lcd_configuration)
@@ -53,6 +58,8 @@ class PicoLCD(object):
         interface_alt = self.lcd_handle.setAltInterface(self.lcd_interface)
 
         self.lcd_interface = self.lcd_configuration.interfaces[0][0]
+        #self.start_button_listener()
+        self.get_button()
 
     def set_text(self, text, row, col):
         assert(len(text) < 256)
@@ -62,6 +69,26 @@ class PicoLCD(object):
         print len(text)
         packet = struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
+
+    def button_listener(self):
+        button = self.get_button()
+        self.lock.acquire()
+        if self.button_cb(button) is not None:
+            self.button_cb(button)
+        self.lock.release()
+        
+    def start_button_listener(self):
+        self.lock = threading.Lock()
+        self.listener_thread = threading.Thread(target=self.button_listener)
+        
+    def get_button(self):
+        endp = self.lcd_interface.endpoints[0]
+        while True:
+            print("Re-running interruptRead loop...")
+            packet = self.lcd_handle.interruptRead(endp.address, 24, 1000)
+            if packet[0] == 0x11:
+                print("Button pressed: x%02x" % packet[1])
+                return packet[1]
 
 class DBusLCD(dbus.service.Object):
     '''Object exposing an LCD over D-Bus.
@@ -78,6 +105,7 @@ class DBusLCD(dbus.service.Object):
         self.path = device_name
         self.bus_or_tube = bus_or_tube
         self.lcd = lcd
+        lcd.button_cb = self.ButtonPressed
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='is', out_signature='')
@@ -90,12 +118,18 @@ class DBusLCD(dbus.service.Object):
     def GetLines(self):
         return 2
 
+    @dbus.service.signal(dbus_interface=LCD_INTERFACE,
+                         signature='i')
+    def ButtonPressed(self, button):
+        pass
+
 mainloop = gobject.MainLoop()
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 system_bus = dbus.SystemBus()
 name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
 my_lcd = PicoLCD()
+my_lcd.get_button()
 object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
 
 mainloop.run()
