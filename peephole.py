@@ -60,7 +60,7 @@ class PicoLCD(object):
 
         self.lcd_interface = self.lcd_configuration.interfaces[0][0]
         time.sleep(1) # also for shame
-        #self.start_button_listener()
+        self.start_button_listener()
 
     def set_text(self, text, row, col):
         assert(len(text) < 256)
@@ -138,9 +138,8 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 system_bus = dbus.SystemBus()
 name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
 my_lcd = PicoLCD()
-while True:
-    #time.sleep(3)
-    my_lcd.get_button()
+# while True:
+#     my_lcd.get_button()
 object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
 
 mainloop.run()
