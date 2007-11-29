@@ -109,6 +109,7 @@ class PicoLCD(object):
         
         self.listener_thread = PicoLCDButtonListener(self.lcd_handle, self.lcd_interface, self.button_cb)
         self.listener_thread.start()
+        time.sleep(12)
         logging.warn(_("Thread started."))
         
 
