@@ -123,6 +123,10 @@ class PicoLCD(object):
         time.sleep(12)
         logging.warn(_("Thread started."))
 
+    def get_lines(self):
+        '''The PicoLCD 20x2 always has two lines -- whoda thunk it.'''
+        return 2
+
     def stop(self):
         '''Stop the driver.'''
         self.listener_thread.stop()
@@ -150,12 +154,12 @@ class DBusLCD(dbus.service.Object):
                          in_signature='is', out_signature='')
     def DisplayText(self, line_number, text):
         print _("User asked to display: %s") % text
-        self.lcd.set_text(str(text), 0, 0)
+        self.lcd.set_text(str(text), int(line_number), 0)
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='', out_signature='i')
     def GetLines(self):
-        return 2
+        self.lcd.get_lines()
 
     @dbus.service.signal(dbus_interface=LCD_INTERFACE,
                          signature='i')
