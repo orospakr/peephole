@@ -148,6 +148,8 @@ class DBusLCD(dbus.service.Object):
     def ButtonPressed(self, button):
         pass
 
+gobject.threads_init()
+
 mainloop = gobject.MainLoop()
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
