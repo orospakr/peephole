@@ -174,7 +174,8 @@ my_lcd = PicoLCD()
 #     my_lcd.get_button()
 object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
 
-mainloop.run()
-
-# program is now quitting, so...
-my_lcd.stop()
+try:
+    mainloop.run()
+except KeyboardInterrupt:
+    # program is now quitting, so...
+    my_lcd.stop()
