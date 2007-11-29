@@ -29,18 +29,23 @@ def get_usb_device(vendor_id, device_id):
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd_handle, lcd_interface, button_cb):
         threading.Thread.__init__(self)
+        self.lock = threading.Lock()
         self.lcd_interface = lcd_interface
         self.button_cb = button_cb
+        self.please_stop = False
         self.lcd_handle = lcd_handle
 
     def run(self):
+        '''This is what is run in the Thread when it is started.'''
         print "lol, internet"
         while True:
+            self.lock.acquire()
+            if self.please_stop:
+                return
             button = self.get_button()
-            #self.lock.acquire()
             if self.button_cb is not None:
                 self.button_cb(button)
-            #self.lock.release()
+            self.lock.release()
 
     def get_button(self):
         '''Blocks until a button down event is detected, and returns it.'''
@@ -57,6 +62,12 @@ class PicoLCDButtonListener(threading.Thread):
                 print("Button pressed: x%02x" % packet[1])
                 return packet[1]
 
+    def stop(self):
+        '''Called by the main thread to stop the this button listener thread.'''
+        self.lock.acquire()
+        self.please_stop = True
+        self.lock.release()
+
 
 class PicoLCD(object):
     '''Represents a picoLCD device.'''
@@ -70,7 +81,7 @@ class PicoLCD(object):
     def __init__(self):
         self.lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
         if self.lcd_device is None:
-            sys.exit(_("No such device."))
+            sys.exit(_("PicoLCD not found."))
         self.lcd_handle = self.lcd_device.open()
         #try:
         #self.lcd_handle.detachKernelDriver(0)
@@ -106,13 +117,16 @@ class PicoLCD(object):
         #self.lock = threading.Lock()
         #self.listener_thread = threading.Thread(target=self.button_listener)
         #self.listener_thread.start()
-        
+
         self.listener_thread = PicoLCDButtonListener(self.lcd_handle, self.lcd_interface, self.button_cb)
         self.listener_thread.start()
         time.sleep(12)
         logging.warn(_("Thread started."))
-        
 
+    def stop(self):
+        '''Stop the driver.'''
+        self.listener_thread.stop()
+        self.listener_thread.join()
 
 class DBusLCD(dbus.service.Object):
     '''Object exposing an LCD over D-Bus.
@@ -161,3 +175,6 @@ my_lcd = PicoLCD()
 object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
 
 mainloop.run()
+
+# program is now quitting, so...
+my_lcd.stop()
