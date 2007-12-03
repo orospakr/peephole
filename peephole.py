@@ -29,6 +29,7 @@ def get_usb_device(vendor_id, device_id):
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
+        self.lcd = lcd
         self.lock = threading.Lock()
         self.button_cb = button_cb
         self.please_stop = False
@@ -65,11 +66,10 @@ class PicoLCDHardware(object):
         if self.lcd_device is None:
             sys.exit(_("PicoLCD not found."))
         self.lcd_handle = self.lcd_device.open()
-        #try:
-        #self.lcd_handle.detachKernelDriver(0)
-        #    pass
-        #except usb.USBError, e:
-        #    print _("Could not detach kernel driver.")
+        try:
+            self.lcd_handle.detachKernelDriver(0)
+        except usb.USBError, e:
+            print _("Could not detach kernel driver.")
         self.lcd_configuration = self.lcd_device.configurations[0]
         print("%s" % self.lcd_device.configurations[0])
         self.lcd_handle.setConfiguration(self.lcd_configuration)
@@ -119,7 +119,7 @@ class PicoLCD(object):
         self.lcd = PicoLCDHardware()
 
     def set_text(self, text, row, col):
-        packet = generate_text_packet(text, row, col)
+        packet = self.generate_text_packet(text, row, col)
         self.lcd.write_command(packet)
 
     def start_button_listener(self):
@@ -128,7 +128,7 @@ class PicoLCD(object):
         #self.listener_thread = threading.Thread(target=self.button_listener)
         #self.listener_thread.start()
 
-        self.listener_thread = PicoLCDButtonListener(self.lcd_handle, self.lcd_interface, self.button_cb)
+        self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cb)
         self.listener_thread.start()
         time.sleep(12)
         logging.warn(_("Thread started."))
