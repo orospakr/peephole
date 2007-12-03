@@ -27,13 +27,11 @@ def get_usb_device(vendor_id, device_id):
     return None
 
 class PicoLCDButtonListener(threading.Thread):
-    def __init__(self, lcd_handle, lcd_interface, button_cb):
+    def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
         self.lock = threading.Lock()
-        self.lcd_interface = lcd_interface
         self.button_cb = button_cb
         self.please_stop = False
-        self.lcd_handle = lcd_handle
 
     def run(self):
         '''This is what is run in the Thread when it is started.'''
@@ -42,25 +40,10 @@ class PicoLCDButtonListener(threading.Thread):
             self.lock.acquire()
             if self.please_stop:
                 return
-            button = self.get_button()
+            button = self.lcd.get_button()
             if self.button_cb is not None:
                 self.button_cb(button)
             self.lock.release()
-
-    def get_button(self):
-        '''Blocks until a button down event is detected, and returns it.'''
-        endp = self.lcd_interface.endpoints[0]
-        while True:
-            print("Re-running interruptRead loop...")
-            try:
-                packet = self.lcd_handle.interruptRead(endp.address, 24, 10000)
-            except usb.USBError: # it throws an exception if the timeout is hit.
-                continue
-            if packet[0] == 0x11:
-                if packet[1] == 0:
-                    continue
-                print("Button pressed: x%02x" % packet[1])
-                return packet[1]
 
     def stop(self):
         '''Called by the main thread to stop the this button listener thread.'''
@@ -68,15 +51,14 @@ class PicoLCDButtonListener(threading.Thread):
         self.please_stop = True
         self.lock.release()
 
-
-class PicoLCD(object):
-    '''Represents a picoLCD device.'''
+class PicoLCDHardware(object):
+    '''Wraps the USB connectivity for the PicoLCD 20x2 device.'''
 
     # USB device IDs
     VENDOR_ID = 0x04d8
     DEVICE_ID = 0x0002
 
-    PICOLCD_DISPLAY_CMD = 0x98
+
 
     def __init__(self):
         self.lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
@@ -104,13 +86,41 @@ class PicoLCD(object):
         time.sleep(1) # also for shame
         #self.start_button_listener()
 
-    def set_text(self, text, row, col):
-        assert(len(text) < 256)
-
+    def write_command(self, packet):
         endp = self.lcd_interface.endpoints[1]
-        fmt = 'BBBB%is' % len(text)
-        packet = struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
+
+    def get_button(self):
+        '''Blocks until a button down event is detected, and returns it.'''
+        endp = self.lcd_interface.endpoints[0]
+        while True:
+            print("Re-running interruptRead loop...")
+            try:
+                packet = self.lcd_handle.interruptRead(endp.address, 24, 10000)
+            except usb.USBError: # it throws an exception if the timeout is hit.
+                continue
+            if packet[0] == 0x11:
+                if packet[1] == 0:
+                    continue
+                print("Button pressed: x%02x" % packet[1])
+                return packet[1]
+
+
+class PicoLCD(object):
+    '''Represents a picoLCD device.'''
+    PICOLCD_DISPLAY_CMD = 0x98
+
+    def generate_text_packet(self, text, row, col):
+        assert(len(text) < 256)
+        fmt = 'BBBB%is' % len(text)
+        return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
+
+    def __init__(self):
+        self.lcd = PicoLCDHardware()
+
+    def set_text(self, text, row, col):
+        packet = generate_text_packet(text, row, col)
+        self.lcd.write_command(packet)
 
     def start_button_listener(self):
         logging.warn(_("Starting button listener thread."))
@@ -166,20 +176,23 @@ class DBusLCD(dbus.service.Object):
     def ButtonPressed(self, button):
         pass
 
-gobject.threads_init()
 
-mainloop = gobject.MainLoop()
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+if __name__ == "__main__":
 
-system_bus = dbus.SystemBus()
-name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
-my_lcd = PicoLCD()
-# while True:
-#     my_lcd.get_button()
-object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
+    gobject.threads_init()
 
-try:
-    mainloop.run()
-except KeyboardInterrupt:
-    # program is now quitting, so...
-    my_lcd.stop()
+    mainloop = gobject.MainLoop()
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+    system_bus = dbus.SystemBus()
+    name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
+    my_lcd = PicoLCD()
+    # while True:
+    #     my_lcd.get_button()
+    object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
+
+    try:
+        mainloop.run()
+    except KeyboardInterrupt:
+        # program is now quitting, so...
+        my_lcd.stop()
