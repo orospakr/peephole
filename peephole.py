@@ -59,8 +59,6 @@ class PicoLCDHardware(object):
     VENDOR_ID = 0x04d8
     DEVICE_ID = 0x0002
 
-
-
     def __init__(self):
         self.lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
         if self.lcd_device is None:
@@ -116,6 +114,11 @@ class PicoLCD(object):
         return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
 
     def __init__(self):
+        pass
+
+    def start(self):
+        '''We have this logic started separately from the class constructor,
+        so this class can be instantiated by the test suite.'''
         self.lcd = PicoLCDHardware()
 
     def set_text(self, text, row, col):
@@ -130,7 +133,7 @@ class PicoLCD(object):
 
         self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cb)
         self.listener_thread.start()
-        time.sleep(12)
+        time.sleep(3)
         logging.warn(_("Thread started."))
 
     def get_lines(self):
@@ -176,7 +179,6 @@ class DBusLCD(dbus.service.Object):
     def ButtonPressed(self, button):
         pass
 
-
 if __name__ == "__main__":
 
     gobject.threads_init()
@@ -187,6 +189,7 @@ if __name__ == "__main__":
     system_bus = dbus.SystemBus()
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     my_lcd = PicoLCD()
+    my_lcd.start()
     # while True:
     #     my_lcd.get_button()
     object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
