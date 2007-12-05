@@ -103,7 +103,6 @@ class PicoLCDHardware(object):
                 print("Button pressed: x%02x" % packet[1])
                 return packet[1]
 
-
 class PicoLCD(object):
     '''Represents a picoLCD device.'''
     PICOLCD_DISPLAY_CMD = 0x98
@@ -114,13 +113,87 @@ class PicoLCD(object):
         fmt = 'BBBB%is' % len(text)
         return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
 
-    def upload_char(self):
-        '''Writes a test char into the CG RAM (Character Generation RAM) of the
-        device.'''
-        char_id = 0
-        # just write some nonsense for now.
-        packet = struct.pack('BB7s', self.PICOLCD_SETFONT_CMD, char_id, '1234567')
+    def upload_char(self, char_id, character):
+        '''Writes a 5x7 character into the CG RAM (Character Generation
+        RAM) of the PicoLCD device.
+
+        char_id -- the index (from 0 to 7) of the special character.
+
+        character -- string (7 bytes long), containing the character.  Each
+                     byte represents a single row of the character, with
+                     each bit corresponding to a single pixel.
+        '''
+        # the pad byte is important.
+        assert char_id <= 7
+        packet = struct.pack('BB7sx', self.PICOLCD_SETFONT_CMD, char_id, character)
         self.lcd.write_command(packet)
+
+    def generate_bar(self, num):
+        '''Generate a bar with a given height in PicoLCD character format.
+
+        num -- the number of rows that should be darkened, starting from the
+               bottom.
+
+        Should be factored out somewhere.'''
+        bar = ''
+        for row in range(0,8):
+            # I subtract one because this the row addressing is zero-based
+            if row <= (num - 1): 
+                bar += '\x00'
+            else:
+                bar += '\x1F'
+        return bar
+
+    def write_vu_bars(self):
+        '''Writes a sequence of VU meter bars to the PicoLCD CG RAM with
+        addresses 1 through 7.  0 is left unused.
+
+        Should be factored out somewhere.
+        '''
+        #self.upload_char(0, "\x1F\x1F\x1F\x1F\x1F\x1F\x1F")
+        self.upload_char(0, "936578f")
+        # we skip the first char ID because we don't need it, and so can use it
+        # for something else.
+        for char_id in range(1,8):
+            character = self.generate_bar(char_id - 1)
+            #character = "1234567"
+            self.upload_char(char_id, character)
+
+    def get_bar_addr_from_value(self, value):
+        '''Returns the address of the appropriate VU meter bar character
+        in the PicoLCD device memory, as set by write_vu_bars().'''
+        if value == 0:
+            return 31 # space character
+        return 9 - (value + 1) 
+
+    def test_spin(self):
+        while True:
+            for i in range(1,9):
+                #self.write_vu_bars()
+                time.sleep(0.050)
+                if i == 8:
+                    self.set_text(' ', 0, 1)
+                else:
+                    self.set_text(chr(i), 0, 1)
+
+    def draw_meter(self, value):
+        '''Draws a little meter on the right hand side of the display.
+        
+        value -- a decimal number between 0 and 1.'''
+        # probably not the best rounding job, but whatever.
+        assert (value >= 0) and (value <= 1)
+        rows = int(value * 14)
+        assert value < 14
+
+        if rows > 7:
+            top_half_character = chr(self.get_bar_addr_from_value(rows-7))
+            bottom_half_character = chr(self.get_bar_addr_from_value(7))
+        else:
+            top_half_character = ' '
+            bottom_half_character = chr(self.get_bar_addr_from_value(rows))
+
+        self.set_text(top_half_character, 0, 19)
+        self.set_text(bottom_half_character, 1, 19)
 
     def __init__(self):
         pass
@@ -183,6 +256,11 @@ class DBusLCD(dbus.service.Object):
     def GetLines(self):
         self.lcd.get_lines()
 
+    @dbus.service.method(dbus_interface=LCD_INTERFACE,
+                         in_signature='d', out_signature='')
+    def DrawVUMeter(self, value):
+        self.lcd.draw_meter(value)
+
     @dbus.service.signal(dbus_interface=LCD_INTERFACE,
                          signature='i')
     def ButtonPressed(self, button):
@@ -199,8 +277,11 @@ if __name__ == "__main__":
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     my_lcd = PicoLCD()
     my_lcd.start()
-    my_lcd.upload_char()
-    my_lcd.set_text("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09whee", 0, 0)
+    my_lcd.write_vu_bars()
+    my_lcd.set_text("\x00\x01\x02\x03\x04\x05\x06\x07whee", 0, 0)
+    my_lcd.draw_meter(0)
+    #my_lcd.test_spin()
+    #sys.exit()
     # while True:
     #     my_lcd.get_button()
     object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
