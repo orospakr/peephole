@@ -114,13 +114,14 @@ class PicoLCD(object):
         fmt = 'BBBB%is' % len(text)
         return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
 
-    def write_char(self):
-        '''Writes a test char into the CG RAM (Character Generation RAM) of the 
+    def upload_char(self):
+        '''Writes a test char into the CG RAM (Character Generation RAM) of the
         device.'''
         char_id = 0
-        packet = struct.pack('B', self.PICOLCD_SETFONT_CMD, char_id, )
-        self.lcd.write_command
-        
+        # just write some nonsense for now.
+        packet = struct.pack('BB7s', self.PICOLCD_SETFONT_CMD, char_id, '1234567')
+        self.lcd.write_command(packet)
+
     def __init__(self):
         pass
 
@@ -198,6 +199,7 @@ if __name__ == "__main__":
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     my_lcd = PicoLCD()
     my_lcd.start()
+    my_lcd.upload_char()
     my_lcd.set_text("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09whee", 0, 0)
     # while True:
     #     my_lcd.get_button()
