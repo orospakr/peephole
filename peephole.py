@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 
+# Peephole - a LCD D-Bus Service daemon.
+# Copyright (C) 2007 Infoglobe
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import gobject
 from gettext import gettext as _
 import dbus
@@ -36,7 +52,7 @@ class PicoLCDButtonListener(threading.Thread):
 
     def run(self):
         '''This is what is run in the Thread when it is started.'''
-        print "lol, internet"
+        logging.debug(_("PicoLCD button listener thread now running."))
         while True:
             self.lock.acquire()
             if self.please_stop:
@@ -67,9 +83,8 @@ class PicoLCDHardware(object):
         try:
             self.lcd_handle.detachKernelDriver(0)
         except usb.USBError, e:
-            print _("Could not detach kernel driver.")
+            logging.warn(_("Could not detach kernel driver."))
         self.lcd_configuration = self.lcd_device.configurations[0]
-        print("%s" % self.lcd_device.configurations[0])
         self.lcd_handle.setConfiguration(self.lcd_configuration)
         time.sleep(0.009) # for shame
 
@@ -92,7 +107,7 @@ class PicoLCDHardware(object):
         '''Blocks until a button down event is detected, and returns it.'''
         endp = self.lcd_interface.endpoints[0]
         while True:
-            print("Re-running interruptRead loop...")
+            logging.debug(_("Re-running interruptRead loop..."))
             try:
                 packet = self.lcd_handle.interruptRead(endp.address, 24, 10000)
             except usb.USBError: # it throws an exception if the timeout is hit.
@@ -100,11 +115,12 @@ class PicoLCDHardware(object):
             if packet[0] == 0x11:
                 if packet[1] == 0:
                     continue
-                print("Button pressed: x%02x" % packet[1])
+                logging.debug(_("Button pressed: x%02x" % packet[1]))
                 return packet[1]
 
 class PicoLCD(object):
     '''Represents a picoLCD device.'''
+    PICOLCD_CLEAR_CMD   = 0x94
     PICOLCD_DISPLAY_CMD = 0x98
     PICOLCD_SETFONT_CMD = 0x9C
 
@@ -112,6 +128,10 @@ class PicoLCD(object):
         assert(len(text) < 256)
         fmt = 'BBBB%is' % len(text)
         return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
+
+    def clear(self):
+        packet = struct.pack('B', self.PICOLCD_CLEAR_CMD)
+        self.lcd.write_command(packet)
 
     def upload_char(self, char_id, character):
         '''Writes a 5x7 character into the CG RAM (Character Generation
@@ -208,7 +228,7 @@ class PicoLCD(object):
         self.lcd.write_command(packet)
 
     def start_button_listener(self):
-        logging.warn(_("Starting button listener thread."))
+        logging.info(_("Starting button listener thread."))
         #self.lock = threading.Lock()
         #self.listener_thread = threading.Thread(target=self.button_listener)
         #self.listener_thread.start()
@@ -216,7 +236,7 @@ class PicoLCD(object):
         self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cb)
         self.listener_thread.start()
         time.sleep(3)
-        logging.warn(_("Thread started."))
+        logging.info(_("Thread started."))
 
     def get_lines(self):
         '''The PicoLCD 20x2 always has two lines -- whoda thunk it.'''
@@ -248,7 +268,7 @@ class DBusLCD(dbus.service.Object):
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='is', out_signature='')
     def DisplayText(self, line_number, text):
-        print _("User asked to display: %s") % text
+        logging.debug(_("User asked to display: %s") % text)
         self.lcd.set_text(str(text), int(line_number), 0)
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
@@ -261,12 +281,20 @@ class DBusLCD(dbus.service.Object):
     def DrawVUMeter(self, value):
         self.lcd.draw_meter(value)
 
+    @dbus.service.method(dbus_interface=LCD_INTERFACE,
+                         in_signature='', out_signature='')
+    def Clear(self):
+        self.lcd.clear()
+
     @dbus.service.signal(dbus_interface=LCD_INTERFACE,
                          signature='i')
     def ButtonPressed(self, button):
         pass
 
 if __name__ == "__main__":
+    print("Peephole.")
+
+    logging.basicConfig(level=logging.DEBUG)
 
     gobject.threads_init()
 
@@ -277,9 +305,10 @@ if __name__ == "__main__":
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     my_lcd = PicoLCD()
     my_lcd.start()
+    my_lcd.clear()
     my_lcd.write_vu_bars()
-    my_lcd.set_text("\x00\x01\x02\x03\x04\x05\x06\x07whee", 0, 0)
-    my_lcd.draw_meter(0)
+    my_lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
+    #my_lcd.draw_meter(0)
     #my_lcd.test_spin()
     #sys.exit()
     # while True:
