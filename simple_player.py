@@ -4,6 +4,7 @@
 
 # hunks of code stolen from Andy Wingo's vumeter.py.
 
+import pygst
 import gst
 import gobject
 import dbus
@@ -17,37 +18,42 @@ def clamp(x, min, max):
         return max
     return x
 
+def scale_to_lcd(value):
+    '''Scales the VU meter value to something in between 1 and 0.'''
+    return (value * -1) / 50
+
 class Player(gobject.GObject):
     def __init__(self):
         gobject.GObject.__init__(self)
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         system_bus = dbus.SystemBus()
-        proxy = system_bus.get_object('org.orospakr.peephole',
-                                      '/org/orospakr/peephole/LCDs/PicoLCD')
+        self.lcd = system_bus.get_object('org.orospakr.peephole',
+                                         '/org/orospakr/peephole/LCDs/PicoLCD')
 
     def run(self):
         try:
-            s = 'alsasrc ! level message=true ! fakesink'
+            # gst-launch filesrc location=Music47.mp3 ! mad ! audioconvert ! audioresample ! alsasink
+            s = 'filesrc location=Music47.mp3 ! mad ! audioconvert ! audioresample ! level message=true !alsasink'
             pipeline = gst.parse_launch(s)
-            self.set_sensitive(True)
+            #self.set_sensitive(True)
             pipeline.get_bus().add_signal_watch()
             i = pipeline.get_bus().connect('message::element', self.on_message)
             pipeline.set_state(gst.STATE_PLAYING)
-            gtk.Dialog.run(self)
+            gobject.MainLoop().run()
             pipeline.get_bus().disconnect(i)
             pipeline.get_bus().remove_signal_watch()
             pipeline.set_state(gst.STATE_NULL)
         except gobject.GError, e:
-            self.set_sensitive(True)
+            raise e
+            #self.set_sensitive(True)
             self.error('Could not create pipeline', e.__str__)
 
-        def error(self, message, secondary=None):
-            logging.error(message)
+    def error(self, message, secondary=None):
+        logging.error(message)
 
         if secondary:
-            m.format_secondary_text(secondary)
-        m.run()
+            logging.error("... secondary.")
 
     def on_message(self, bus, message):
         if  message.structure.get_name() == 'level':
@@ -61,6 +67,7 @@ class Player(gobject.GObject):
 
                 #self.vus[i].set_property('decay', decay)
                 #self.vus[i].set_property('peak', peak)
+                self.lcd.DrawVUMeter(scale_to_lcd(peak))
 
                 # send to LCD!
         return True
@@ -71,4 +78,7 @@ if __name__ == "__main__":
 
 
     player = Player()
+    player.run()
+
+    #gobject.MainLoop().run()
 
