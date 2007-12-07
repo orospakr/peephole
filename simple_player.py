@@ -2,7 +2,7 @@
 
 # it may not be an ipod, but it's a good demo!
 
-# hunks of code stolen from Andy Wingo's vumeter.py.
+# hunks of code stolen from Andy Wingo's (f)vumeter.py.
 
 import pygst
 import gst
@@ -10,6 +10,28 @@ import gobject
 import dbus
 import dbus.mainloop.glib
 import logging
+
+
+def iec_scale(db):
+    '''Returns the meter deflection percentage given a dB value.'''
+    pct = 0.0
+    if db < -70.0:
+        pct = 0.0
+    elif db < -60.0:
+        pct = (db + 70.0) * 0.25
+    elif db < -50.0:
+        pct = (db + 60.0) * 0.5 + 2.5
+    elif db < -40.0:
+        pct = (db + 50.0) * 0.75 + 7.5
+    elif db < -30.0:
+        pct = (db + 40.0) * 1.5 + 15.0
+    elif db < -20.0:
+        pct = (db + 30.0) * 2.0 + 30.0
+    elif db < 0.0:
+        pct = (db + 20.0) * 2.5 + 50.0
+    else:
+        pct = 100.0
+    return pct
 
 def clamp(x, min, max):
     if x < min:
@@ -33,19 +55,19 @@ class Player(gobject.GObject):
 
     def run(self):
         try:
-            # gst-launch filesrc location=Music47.mp3 ! mad ! audioconvert ! audioresample ! alsasink
-            s = 'filesrc location=Music47.mp3 ! mad ! audioconvert ! audioresample ! level message=true !alsasink'
+            # gst-launch filesrc location=enjoy-the-silence.mp3 ! mad ! audioconvert ! audioresample ! alsasink
+            s = 'filesrc location=enjoy-the-silence.mp3 ! mad ! audioconvert ! audioresample ! level message=true !alsasink'
             pipeline = gst.parse_launch(s)
             #self.set_sensitive(True)
             pipeline.get_bus().add_signal_watch()
             i = pipeline.get_bus().connect('message::element', self.on_message)
             pipeline.set_state(gst.STATE_PLAYING)
+            logging.debug("Now starting glib mainloop...")
             gobject.MainLoop().run()
             pipeline.get_bus().disconnect(i)
             pipeline.get_bus().remove_signal_watch()
             pipeline.set_state(gst.STATE_NULL)
         except gobject.GError, e:
-            raise e
             #self.set_sensitive(True)
             self.error('Could not create pipeline', e.__str__)
 
@@ -67,7 +89,8 @@ class Player(gobject.GObject):
 
                 #self.vus[i].set_property('decay', decay)
                 #self.vus[i].set_property('peak', peak)
-                self.lcd.DrawVUMeter(scale_to_lcd(peak))
+                print (iec_scale(decay))/100
+                self.lcd.DrawVUMeter(((iec_scale(peak))/100))
 
                 # send to LCD!
         return True
@@ -75,7 +98,7 @@ class Player(gobject.GObject):
 if __name__ == "__main__":
     print("Simple Media player for Peephole.")
 
-
+    logging.basicConfig(level=logging.DEBUG)
 
     player = Player()
     player.run()
