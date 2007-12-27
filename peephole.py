@@ -124,6 +124,11 @@ class PicoLCD(object):
     PICOLCD_DISPLAY_CMD = 0x98
     PICOLCD_SETFONT_CMD = 0x9C
 
+    # these two strings contain the contents of the display as we know it.
+    # this is done because the device is write-only, and we need to know what
+    # the contents are for the "burn in" feature.
+    contents = ['' * 20, '' * 20]
+
     def generate_text_packet(self, text, row, col):
         assert(len(text) < 256)
         fmt = 'BBBB%is' % len(text)
@@ -158,7 +163,7 @@ class PicoLCD(object):
         bar = ''
         for row in range(0,8):
             # I subtract one because this the row addressing is zero-based
-            if row <= (num - 1): 
+            if row <= (num - 1):
                 bar += '\x00'
             else:
                 bar += '\x1F'
@@ -184,7 +189,7 @@ class PicoLCD(object):
         in the PicoLCD device memory, as set by write_vu_bars().'''
         if value == 0:
             return 31 # space character
-        return 9 - (value + 1) 
+        return 9 - (value + 1)
 
     def test_spin(self):
         while True:
@@ -198,7 +203,7 @@ class PicoLCD(object):
 
     def draw_meter(self, value):
         '''Draws a little meter on the right hand side of the display.
-        
+
         value -- a decimal number between 0 and 1.'''
         # probably not the best rounding job, but whatever.
         assert (value >= 0) and (value <= 1)
@@ -224,6 +229,14 @@ class PicoLCD(object):
         self.lcd = PicoLCDHardware()
 
     def set_text(self, text, row, col):
+        # the +1s are because col is the column number, which is zero based.
+        new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
+        self.contents[row] = new[20:]
+        assert len(self.contents[row]) == 20
+        logging.debug('Row %i now contains "%s".' % (row, self.contents[row]))
+        # we don't actually send the contents buffer.  The device is faster (I think)
+        # if you just send the changed bit, so we might as well, because this code
+        # is known good.
         packet = self.generate_text_packet(text, row, col)
         self.lcd.write_command(packet)
 
@@ -239,8 +252,17 @@ class PicoLCD(object):
         logging.info(_("Thread started."))
 
     def get_lines(self):
-        '''The PicoLCD 20x2 always has two lines -- whoda thunk it.'''
-        return 2
+        '''The PicoLCD 20x2 always has two lines -- who-da thunk it?'''
+        len(self.contents)
+
+    def burn_screen(self):
+        '''Makes the current contents of the display permanent, in that they
+        will be automatically displayed when the device is powered up.
+
+        The PicoLCD device has a more comprehensive interface than this,
+        but Peephole is meant to take a lowest common denominator approach.
+        '''
+        pass
 
     def stop(self):
         '''Stop the driver.'''
