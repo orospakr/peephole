@@ -1,0 +1,21 @@
+Peephole 0.1.0
+
+A D-Bus service for accessing dot-matrix and segmented LCD displays.
+
+Dependencies:
+
+python-dbus
+python-usb (aka python-pyusb)
+python-gobject
+
+D-Bus API
+~~~~~~~~~
+
+
+Examples
+~~~~~~~~
+
+Shell:
+
+dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"text on the display"
+

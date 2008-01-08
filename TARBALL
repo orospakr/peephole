@@ -1,0 +1,1 @@
+git-archive --format=tar --prefix=peephole-0.1.0a/ v0.1.0 | bzip2 -c > ../peephole-0.1.0a.tar.bz2
