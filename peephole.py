@@ -46,7 +46,6 @@ class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
         self.lcd = lcd
-        self.please_stop_lock = threading.Lock()
         self.button_cb = button_cb
         self.please_stop = False
 
@@ -57,23 +56,16 @@ class PicoLCDButtonListener(threading.Thread):
         '''This is what is run in the Thread when it is started.'''
         logging.debug(_("PicoLCD button listener thread now running."))
         while True:
-            #self.lock.acquire()
             if self.please_stop:
                 return
             button = self.lcd.get_button(self.check_if_time_to_stop)
             if self.button_cb is not None and button is not None:
                 logging.debug("Button was: %s" % button)
                 self.button_cb(button)
-            #logging.debug("button listener temporarily releasing lock")
-            #self.lock.release()
 
     def shutdown(self):
         '''Called by the main thread to stop the this button listener thread.'''
-        #logging.debug("stop() is acquiring lock!")
-        #self.lock.acquire()
-        #logging.debug("stop() has acquired lock!")
         self.please_stop = True
-        #self.lock.release()
 
 class PicoLCDHardware(object):
     '''Wraps the USB connectivity for the PicoLCD 20x2 device.'''
@@ -254,9 +246,6 @@ class PicoLCD(object):
 
     def start_button_listener(self):
         logging.info(_("Starting button listener thread."))
-        #self.lock = threading.Lock()
-        #self.listener_thread = threading.Thread(target=self.button_listener)
-        #self.listener_thread.start()
 
         self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cb)
         self.listener_thread.start()
