@@ -24,9 +24,9 @@ import dbus.mainloop.glib
 import logging
 import struct
 import sys
-import time
-import threading
-import usb
+#import time
+#import threading
+#import usb
 
 #  dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"stuffs"
 

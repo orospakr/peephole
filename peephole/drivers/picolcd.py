@@ -14,6 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import usb
+import threading
+import logging
+import struct
+import sys
+import time
+from gettext import gettext as _
+
+import peephole.drivers.driver
+
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
@@ -47,7 +57,7 @@ class PicoLCDHardware(object):
     DEVICE_ID = 0x0002
 
     def __init__(self):
-        self.lcd_device = get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
+        self.lcd_device = peephole.drivers.driver.get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
         if self.lcd_device is None:
             sys.exit(_("PicoLCD not found."))
         self.lcd_handle = self.lcd_device.open()
@@ -91,7 +101,7 @@ class PicoLCDHardware(object):
                 logging.debug(_("Button pressed: x%02x" % packet[1]))
                 return packet[1]
 
-class PicoLCD(object):
+class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
     PICOLCD_CLEAR_CMD   = 0x94
     PICOLCD_DISPLAY_CMD = 0x98
