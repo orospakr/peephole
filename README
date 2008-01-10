@@ -2,17 +2,25 @@ Peephole 0.1.0
 
 A D-Bus service for accessing dot-matrix and segmented LCD displays.
 
-Dependencies:
+Dependencies
+~~~~~~~~~~~~
 
 python-dbus
 python-usb (aka python-pyusb)
 python-gobject
 
+Running Directly
+~~~~~~~~~~~~~~~~
+
+To run Peephole directly out of the tree and avoid installing anything,
+
+do
+
 D-Bus API
 ~~~~~~~~~
 
 
-Examples
+Client Examples
 ~~~~~~~~
 
 Shell:

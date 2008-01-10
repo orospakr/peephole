@@ -36,15 +36,6 @@ LCD_INTERFACE = 'org.orospakr.peephole.LCD'
 PEEPHOLE_WELL_KNOWN_NAME = 'org.orospakr.peephole'
 LCD_PATH_BASE = '/org/orospakr/peephole/LCDs/'
 
-def get_usb_device(vendor_id, device_id):
-    buses = usb.busses()
-    for bus in buses:
-        for device in bus.devices:
-            if device.idVendor == vendor_id and device.idProduct == device_id:
-                return device
-    return None
-
-
 
 class DBusLCD(dbus.service.Object):
     '''Object exposing an LCD over D-Bus.
@@ -90,7 +81,7 @@ class DBusLCD(dbus.service.Object):
     def ButtonPressed(self, button):
         pass
 
-if __name__ == "__main__":
+def main():
     print("Peephole.")
 
     logging.basicConfig(level=logging.DEBUG)
@@ -119,3 +110,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         # program is now quitting, so...
         my_lcd.stop()
+    
+
+if __name__ == "__main__":
+    main()

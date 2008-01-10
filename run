@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# this script lets you run peephole out of tree.
+# don't forget to install the D-Bus service config file as
+# documented in README, though.
+
+PYTHONPATH=. peephole/peepholed.py

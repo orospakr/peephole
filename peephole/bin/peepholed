@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+import peephole.peepholed
+
+peephole.peepholed.main()
