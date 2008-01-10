@@ -1,4 +1,4 @@
-Peephole 0.1.0
+*** Peephole ***
 
 A D-Bus service for accessing dot-matrix and segmented LCD displays.
 
@@ -8,22 +8,36 @@ Dependencies
 python-dbus
 python-usb (aka python-pyusb)
 python-gobject
+python-nose (aka nosetests) for running test suite
 
 Running Directly
 ~~~~~~~~~~~~~~~~
 
-To run Peephole directly out of the tree and avoid installing anything,
+To run Peephole directly out of the tree and avoid installing
+anything, put Peephole.conf into /etc/dbus-1/system.d/.  This
+file defines what users and processes are allowed to access
+the Peephole service.  This step is not optional.
 
-do
+Then execute:
+
+./run
+
+Installation
+~~~~~~~~~~~~
+
+The installation procedure is provided by a standard Python
+distutils setup.py script.  This takes care of installing
+the Peephole package and peepholed program, as well as
+installing the D-Bus service configuration file.
 
 D-Bus API
 ~~~~~~~~~
 
 
 Client Examples
-~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Shell:
 
-dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"text on the display"
+dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/PicoLCD ca.infoglobe.peephole.LCD.DisplayText string:0 string:"text on the display"
 

@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=ca.infoglobe.peephole
+Exec=/usr/bin/peepholed

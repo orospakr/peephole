@@ -24,6 +24,8 @@ from gettext import gettext as _
 
 import peephole.drivers.driver
 
+USB_INTERRUPTREAD_TIMEOUT = 4000
+
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
@@ -92,7 +94,7 @@ class PicoLCDHardware(object):
             if should_i_stop() is True:
                 return None
             try:
-                packet = self.lcd_handle.interruptRead(endp.address, 24, 10000)
+                packet = self.lcd_handle.interruptRead(endp.address, 24, USB_INTERRUPTREAD_TIMEOUT)
             except usb.USBError: # it throws an exception if the timeout is hit.
                 continue
             if packet[0] == 0x11:

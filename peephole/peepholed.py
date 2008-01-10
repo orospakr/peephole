@@ -24,17 +24,14 @@ import dbus.mainloop.glib
 import logging
 import struct
 import sys
-#import time
-#import threading
-#import usb
 
-#  dbus-send --print-reply --type=method_call --system --dest='org.orospakr.peephole' /org/orospakr/peephole/LCDs/PicoLCD org.orospakr.peephole.LCD.DisplayText string:0 string:"stuffs"
+#  dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/PicoLCD ca.infoglobe.peephole.LCD.DisplayText string:0 string:"stuffs"
 
 import peephole.drivers.picolcd
 
-LCD_INTERFACE = 'org.orospakr.peephole.LCD'
-PEEPHOLE_WELL_KNOWN_NAME = 'org.orospakr.peephole'
-LCD_PATH_BASE = '/org/orospakr/peephole/LCDs/'
+LCD_INTERFACE = 'ca.infoglobe.peephole.LCD'
+PEEPHOLE_WELL_KNOWN_NAME = 'ca.infoglobe.peephole'
+LCD_PATH_BASE = '/ca/infoglobe/peephole/LCDs/'
 
 
 class DBusLCD(dbus.service.Object):
