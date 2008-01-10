@@ -46,27 +46,34 @@ class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
         self.lcd = lcd
-        self.lock = threading.Lock()
+        self.please_stop_lock = threading.Lock()
         self.button_cb = button_cb
         self.please_stop = False
+
+    def check_if_time_to_stop(self):
+        return self.please_stop
 
     def run(self):
         '''This is what is run in the Thread when it is started.'''
         logging.debug(_("PicoLCD button listener thread now running."))
         while True:
-            self.lock.acquire()
+            #self.lock.acquire()
             if self.please_stop:
                 return
-            button = self.lcd.get_button()
-            if self.button_cb is not None:
+            button = self.lcd.get_button(self.check_if_time_to_stop)
+            if self.button_cb is not None and button is not None:
+                logging.debug("Button was: %s" % button)
                 self.button_cb(button)
-            self.lock.release()
+            #logging.debug("button listener temporarily releasing lock")
+            #self.lock.release()
 
-    def stop(self):
+    def shutdown(self):
         '''Called by the main thread to stop the this button listener thread.'''
-        self.lock.acquire()
+        #logging.debug("stop() is acquiring lock!")
+        #self.lock.acquire()
+        #logging.debug("stop() has acquired lock!")
         self.please_stop = True
-        self.lock.release()
+        #self.lock.release()
 
 class PicoLCDHardware(object):
     '''Wraps the USB connectivity for the PicoLCD 20x2 device.'''
@@ -103,11 +110,13 @@ class PicoLCDHardware(object):
         endp = self.lcd_interface.endpoints[1]
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
 
-    def get_button(self):
+    def get_button(self, should_i_stop):
         '''Blocks until a button down event is detected, and returns it.'''
         endp = self.lcd_interface.endpoints[0]
         while True:
             logging.debug(_("Re-running interruptRead loop..."))
+            if should_i_stop() is True:
+                return None
             try:
                 packet = self.lcd_handle.interruptRead(endp.address, 24, 10000)
             except usb.USBError: # it throws an exception if the timeout is hit.
@@ -231,8 +240,11 @@ class PicoLCD(object):
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
         new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
-        self.contents[row] = new[20:]
-        assert len(self.contents[row]) == 20
+        self.contents[row] = new[:20]
+        try:
+            assert len(self.contents[row]) == 20
+        except AssertionError:
+            logging.debug("the row was %i, which should never be different than 20!" % len(self.contents[row]))
         logging.debug('Row %i now contains "%s".' % (row, self.contents[row]))
         # we don't actually send the contents buffer.  The device is faster (I think)
         # if you just send the changed bit, so we might as well, because this code
@@ -266,7 +278,9 @@ class PicoLCD(object):
 
     def stop(self):
         '''Stop the driver.'''
-        self.listener_thread.stop()
+        logging.info("Attempting to stop PicoLCD button listener thread...")
+        self.listener_thread.shutdown()
+        logging.info("Successfully called PicoLCD button listener shutdown()")
         self.listener_thread.join()
 
 class DBusLCD(dbus.service.Object):
