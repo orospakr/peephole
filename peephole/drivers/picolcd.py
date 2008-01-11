@@ -112,6 +112,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
     PICOLCD_CLEAR_CMD   = 0x94
     PICOLCD_DISPLAY_CMD = 0x98
     PICOLCD_SETFONT_CMD = 0x9C
+    PICOLCD_REPORT_INT_EE_WRITE = 0x32
 
     # these two strings contain the contents of the display as we know it.
     # this is done because the device is write-only, and we need to know what
@@ -245,14 +246,19 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''The PicoLCD 20x2 always has two lines -- who-da thunk it?'''
         len(self.contents)
 
+    def generate_splash_packet(self, number, contents):
+        pass
+
     def burn_screen(self):
         '''Makes the current contents of the display permanent, in that they
-        will be automatically displayed when the device is powered up.
+        will be automatically displayed when the device is powered up.  This
+        uses the "splash screen" feature of the device.
 
         The PicoLCD device has a more comprehensive interface than this,
         but Peephole is meant to take a lowest common denominator approach.
         '''
-        pass
+        packet = self.generate_splash_packet(self.contents)
+        self.lcd.write_command(packet)
 
     def stop(self):
         '''Stop the driver.'''

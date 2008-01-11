@@ -16,7 +16,7 @@ class PicoLCDTest(unittest.TestCase):
 
         result = peephole.drivers.picolcd.replace_text(row, replace_text, replace_at)
         
-        #self.assertEqual(len(result), 20)
+        self.assertEqual(len(result), 20)
 
         self.assertEqual(final_text, result)
 
