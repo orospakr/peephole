@@ -26,6 +26,10 @@ import peephole.drivers.driver
 
 USB_INTERRUPTREAD_TIMEOUT = 4000
 
+def replace_text(orig_buffer, new_content, col):
+    '''Replaces the contents of orig_buffer at col with new_content.'''
+    return orig_buffer[:col] + new_content + orig_buffer[col+len(new_content):]
+
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cb):
         threading.Thread.__init__(self)
@@ -215,7 +219,8 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
-        new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
+        #new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
+        new = replace_text(self.contents[row], text, row) 
         self.contents[row] = new[:20]
         try:
             assert len(self.contents[row]) == 20
@@ -253,5 +258,5 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''Stop the driver.'''
         logging.info("Attempting to stop PicoLCD button listener thread...")
         self.listener_thread.shutdown()
-        logging.info("Successfully called PicoLCD button listener shutdown()")
+        logging.info("Request sent.  Please wait a moment...")
         self.listener_thread.join()
