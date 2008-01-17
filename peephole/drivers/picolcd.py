@@ -247,7 +247,16 @@ class PicoLCD(peephole.drivers.driver.Driver):
         len(self.contents)
 
     def generate_splash_packet(self, number, contents):
-        pass
+        fmt = 'BBBB40s'
+        faddr = 0
+        # I'm not sure what the constant 0x14 is meant to do.
+        test_line = "     this is a test "
+        test_line2= "   lol internet     "
+        packet = struct.pack(fmt, self.PICOLCD_REPORT_INT_EE_WRITE,
+                             faddr & 0xFF, (faddr >> 8) & 0xF, 0x14,
+                             test_line + test_line2)
+        return packet
+        
 
     def burn_screen(self):
         '''Makes the current contents of the display permanent, in that they
@@ -257,7 +266,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         The PicoLCD device has a more comprehensive interface than this,
         but Peephole is meant to take a lowest common denominator approach.
         '''
-        packet = self.generate_splash_packet(self.contents)
+        packet = self.generate_splash_packet(0, self.contents)
         self.lcd.write_command(packet)
 
     def stop(self):

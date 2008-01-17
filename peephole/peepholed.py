@@ -95,6 +95,7 @@ def main():
     my_lcd.clear()
     my_lcd.write_vu_bars()
     my_lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
+    my_lcd.burn_screen()
     #my_lcd.draw_meter(0)
     #my_lcd.test_spin()
     #sys.exit()
