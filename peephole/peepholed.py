@@ -101,7 +101,7 @@ def main():
     #sys.exit()
     # while True:
     #     my_lcd.get_button()
-    object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
+    dbus_object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
 
     try:
         mainloop.run()
