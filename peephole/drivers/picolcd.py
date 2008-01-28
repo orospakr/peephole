@@ -32,6 +32,7 @@ PICOLCD_SETFONT_CMD = 0x9C
 PICOLCD_REPORT_INT_EE_WRITE = 0x32
 PICOLCD_GET_IRDATA = 0x21
 PICOLCD_GET_KEYDATA = 0x11
+PICOLCD_BACKLIGHT = 0x91
 
 def replace_text(orig_buffer, new_content, col):
     '''Replaces the contents of orig_buffer at col with new_content.'''
@@ -122,7 +123,6 @@ class PicoLCDHardware(object):
 
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
- 
 
     button_cbs = []
 
@@ -249,6 +249,15 @@ class PicoLCD(peephole.drivers.driver.Driver):
         packet = self.generate_text_packet(text, row, col)
         self.lcd.write_command(packet)
 
+    def generate_backlight_packet(self, status):
+        fmt = 'BB'
+        packet = struct.pack(fmt, PICOLCD_BACKLIGHT, status)
+        return packet
+
+    def set_backlight(self, status):
+        packet = self.generate_backlight_packet(status)
+        self.lcd.write_command(packet)
+        
     def start_button_listener(self):
         logging.info(_("Starting button listener thread."))
 
