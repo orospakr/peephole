@@ -49,7 +49,7 @@ class DBusLCD(dbus.service.Object):
         self.path = device_name
         self.bus_or_tube = bus_or_tube
         self.lcd = lcd
-        lcd.button_cb = self.ButtonPressed
+        lcd.add_button_callback(self.ButtonPressed)
         lcd.start_button_listener()
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,

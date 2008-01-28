@@ -50,8 +50,8 @@ class Player(gobject.GObject):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         system_bus = dbus.SystemBus()
-        self.lcd = system_bus.get_object('org.orospakr.peephole',
-                                         '/org/orospakr/peephole/LCDs/PicoLCD')
+        self.lcd = system_bus.get_object('ca.infoglobe.peephole',
+                                         '/ca/infoglobe/peephole/LCDs/PicoLCD')
 
     def run(self):
         try:

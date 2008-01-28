@@ -21,6 +21,10 @@ class Driver(object):
 
     You are allowed to spawn a thread to do jobs like listening
     for key events (see the PicoLCD driver for an example thereof).
+
+    TODO -- make non-essential non-implemented methods throw a nicer
+    exception for D-Bus clients so they know that particular device
+    does not support that feature.
     '''
     def __init__(self):
         pass
@@ -41,7 +45,7 @@ class Driver(object):
         the display.'''
 
     @virtual
-    def set_button_callback(self, cb):
+    def add_button_callback(self, cb):
         '''Adds a callback to be fired.
 
         The callback will be threadsafe (it will of course need

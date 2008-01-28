@@ -26,15 +26,22 @@ import peephole.drivers.driver
 
 USB_INTERRUPTREAD_TIMEOUT = 4000
 
+PICOLCD_CLEAR_CMD   = 0x94
+PICOLCD_DISPLAY_CMD = 0x98
+PICOLCD_SETFONT_CMD = 0x9C
+PICOLCD_REPORT_INT_EE_WRITE = 0x32
+PICOLCD_GET_IRDATA = 0x21
+PICOLCD_GET_KEYDATA = 0x11
+
 def replace_text(orig_buffer, new_content, col):
     '''Replaces the contents of orig_buffer at col with new_content.'''
     return orig_buffer[:col] + new_content + orig_buffer[col+len(new_content):]
 
 class PicoLCDButtonListener(threading.Thread):
-    def __init__(self, lcd, button_cb):
+    def __init__(self, lcd, button_cbs):
         threading.Thread.__init__(self)
         self.lcd = lcd
-        self.button_cb = button_cb
+        self.button_cbs = button_cbs
         self.please_stop = False
 
     def check_if_time_to_stop(self):
@@ -47,9 +54,10 @@ class PicoLCDButtonListener(threading.Thread):
             if self.please_stop:
                 return
             button = self.lcd.get_button(self.check_if_time_to_stop)
-            if self.button_cb is not None and button is not None:
+            if self.button_cbs is not None and button is not None and len(self.button_cbs) > 0:
                 logging.debug("Button was: %s" % button)
-                self.button_cb(button)
+                for cb in self.button_cbs:
+                    cb(button)
 
     def shutdown(self):
         '''Called by the main thread to stop the this button listener thread.'''
@@ -101,7 +109,12 @@ class PicoLCDHardware(object):
                 packet = self.lcd_handle.interruptRead(endp.address, 24, USB_INTERRUPTREAD_TIMEOUT)
             except usb.USBError: # it throws an exception if the timeout is hit.
                 continue
-            if packet[0] == 0x11:
+
+            # just for testing the infrared detector
+            if packet[0] == PICOLCD_GET_IRDATA:
+                print packet
+
+            if packet[0] == PICOLCD_GET_KEYDATA:
                 if packet[1] == 0:
                     continue
                 logging.debug(_("Button pressed: x%02x" % packet[1]))
@@ -109,23 +122,25 @@ class PicoLCDHardware(object):
 
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
-    PICOLCD_CLEAR_CMD   = 0x94
-    PICOLCD_DISPLAY_CMD = 0x98
-    PICOLCD_SETFONT_CMD = 0x9C
-    PICOLCD_REPORT_INT_EE_WRITE = 0x32
+ 
+
+    button_cbs = []
 
     # these two strings contain the contents of the display as we know it.
     # this is done because the device is write-only, and we need to know what
     # the contents are for the "burn in" feature.
     contents = ['' * 20, '' * 20]
 
+    def add_button_callback(self, cb):
+        self.button_cbs.append(cb)
+
     def generate_text_packet(self, text, row, col):
         assert(len(text) < 256)
         fmt = 'BBBB%is' % len(text)
-        return struct.pack(fmt, self.PICOLCD_DISPLAY_CMD, row, col, len(text), text)
+        return struct.pack(fmt, PICOLCD_DISPLAY_CMD, row, col, len(text), text)
 
     def clear(self):
-        packet = struct.pack('B', self.PICOLCD_CLEAR_CMD)
+        packet = struct.pack('B', PICOLCD_CLEAR_CMD)
         self.lcd.write_command(packet)
 
     def upload_char(self, char_id, character):
@@ -140,7 +155,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''
         # the pad byte is important.
         assert char_id <= 7
-        packet = struct.pack('BB7sx', self.PICOLCD_SETFONT_CMD, char_id, character)
+        packet = struct.pack('BB7sx', PICOLCD_SETFONT_CMD, char_id, character)
         self.lcd.write_command(packet)
 
     def generate_bar(self, num):
@@ -237,9 +252,9 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def start_button_listener(self):
         logging.info(_("Starting button listener thread."))
 
-        self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cb)
+        self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cbs)
         self.listener_thread.start()
-        time.sleep(3)
+        #time.sleep(3)
         logging.info(_("Thread started."))
 
     def get_lines(self):
@@ -252,11 +267,10 @@ class PicoLCD(peephole.drivers.driver.Driver):
         # I'm not sure what the constant 0x14 is meant to do.
         test_line = "     this is a test "
         test_line2= "   lol internet     "
-        packet = struct.pack(fmt, self.PICOLCD_REPORT_INT_EE_WRITE,
+        packet = struct.pack(fmt, PICOLCD_REPORT_INT_EE_WRITE,
                              faddr & 0xFF, (faddr >> 8) & 0xF, 0x14,
                              test_line + test_line2)
         return packet
-        
 
     def burn_screen(self):
         '''Makes the current contents of the display permanent, in that they
