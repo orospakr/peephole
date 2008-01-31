@@ -79,9 +79,9 @@ class DBusLCD(dbus.service.Object):
         pass
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
-                         in_signature='i', out_signature='')
-    def SetBacklight(self, value):
-        self.lcd.set_backlight(value)
+                         in_signature='b', out_signature='')
+    def SetBacklight(self, status):
+        self.lcd.set_backlight(status)
 
 def main():
     print("Peephole.")
@@ -114,7 +114,7 @@ def main():
     except KeyboardInterrupt:
         # program is now quitting, so...
         my_lcd.stop()
-    
+
 
 if __name__ == "__main__":
     main()
