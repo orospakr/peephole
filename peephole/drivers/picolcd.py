@@ -262,6 +262,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         return packet
 
     def set_backlight(self, status):
+        logging.debug("Set backlight called with %s." % status)
         packet = self.generate_backlight_packet(status)
         self.lcd.write_command(packet)
 
