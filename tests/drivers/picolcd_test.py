@@ -52,14 +52,19 @@ class PicoLCDTest(unittest.TestCase):
     def testReplaceTextAlmostTooLong(self):
         row =          "  Hello Computer    "
         replace_text =         "Computerdude"
-        replace_at = 7
-        result =       "  Hello Computerdude"
+        replace_at = 8
+        final_text =   "  Hello Computerdude"
+
 
         self.assertEqual(len(row), 20)
         self.assertEqual(len(final_text), 20)
         result = peephole.drivers.picolcd.replace_text(row,
                                                        replace_text,
                                                        replace_at)
+
+        self.assertEqual(len(result), 20)
+
+        self.assertEqual(final_text, result)
 
 
     def testGenerateText(self):
