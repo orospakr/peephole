@@ -36,6 +36,8 @@ PICOLCD_BACKLIGHT = 0x91
 
 def replace_text(orig_buffer, new_content, col):
     '''Replaces the contents of orig_buffer at col with new_content.'''
+    if (len(new_content) + col) > 20:
+        raise ValueError, _("Too big to fit on the display!")
     return orig_buffer[:col] + new_content + orig_buffer[col+len(new_content):]
 
 class PicoLCDButtonListener(threading.Thread):

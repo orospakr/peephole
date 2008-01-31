@@ -21,7 +21,9 @@ class PicoLCDTest(unittest.TestCase):
         self.assertEqual(len(row), 20)
         self.assertEqual(len(final_text), 20)
 
-        result = peephole.drivers.picolcd.replace_text(row, replace_text, replace_at)
+        result = peephole.drivers.picolcd.replace_text(row,
+                                                       replace_text,
+                                                       replace_at)
 
         self.assertEqual(len(result), 20)
 
@@ -31,13 +33,34 @@ class PicoLCDTest(unittest.TestCase):
         row =          "  Hello Computer    "
         replace_text = "  Bye.  It was nice knowing you.  This is overly verbose."
         replace_at = 2
-        final_text   = "    Bye. It was nice"
+        #final_text   = "    Bye. It was nice"
+        got_exception = False
+        result = ""
+
+        self.assertEqual(len(row), 20)
+        #self.assertEqual(len(final_text), 20)
+        try:
+            result = peephole.drivers.picolcd.replace_text(row,
+                                                           replace_text,
+                                                           replace_at)
+        except ValueError:
+            got_exception = True
+        self.assertEqual(got_exception, True)
+        #self.assertEqual(len(result), 20)
+        #self.assertEqual(final_text, result)
+
+    def testReplaceTextAlmostTooLong(self):
+        row =          "  Hello Computer    "
+        replace_text =         "Computerdude"
+        replace_at = 7
+        result =       "  Hello Computerdude"
 
         self.assertEqual(len(row), 20)
         self.assertEqual(len(final_text), 20)
-        result = peephole.drivers.picolcd.replace_text(row, replace_text, replace_at)
-        self.assertEqual(len(result), 20)
-        self.assertEqual(final_text, result)
+        result = peephole.drivers.picolcd.replace_text(row,
+                                                       replace_text,
+                                                       replace_at)
+
 
     def testGenerateText(self):
         '''Maybe this should use a fixture packet rather than just generating
