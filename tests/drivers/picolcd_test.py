@@ -66,7 +66,6 @@ class PicoLCDTest(unittest.TestCase):
 
         self.assertEqual(final_text, result)
 
-
     def testGenerateText(self):
         '''Maybe this should use a fixture packet rather than just generating
         one with a copy pasta'd copy of the algorithm. :P'''
@@ -88,6 +87,7 @@ class PicoLCDTest(unittest.TestCase):
     def testGenerateBacklightTurnOff(self):
         off_packet = self.picolcd.generate_backlight_packet(False)
         self.assertEquals(off_packet, self.packet_backlight_off)
+
 
 
 

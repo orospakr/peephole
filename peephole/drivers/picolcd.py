@@ -243,7 +243,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         try:
             assert len(self.contents[row]) == 20
         except AssertionError:
-            logging.debug("the row was %i, which should never be different than 20!" % len(self.contents[row]))
+            logging.debug("the row length was %i, which should never be different than 20!" % len(self.contents[row]))
         logging.debug('Row %i now contains "%s".' % (row, self.contents[row]))
         # we don't actually send the contents buffer.  The device is faster (I think)
         # if you just send the changed bit, so we might as well, because this code
@@ -255,7 +255,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''Returns a generated packet string to set the PicoLCD backlight
         to on or off, according to the boolean value status.'''
         fmt = 'BB'
-        if status is True:
+        if status == True:
             packet = struct.pack(fmt, PICOLCD_BACKLIGHT, 1)
         else:
             packet = struct.pack(fmt, PICOLCD_BACKLIGHT, 0)
