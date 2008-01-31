@@ -236,7 +236,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
         #new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
-        new = replace_text(self.contents[row], text, row) 
+        new = replace_text(self.contents[row], text, row)
         self.contents[row] = new[:20]
         try:
             assert len(self.contents[row]) == 20
@@ -250,14 +250,19 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.lcd.write_command(packet)
 
     def generate_backlight_packet(self, status):
+        '''Returns a generated packet string to set the PicoLCD backlight
+        to on or off, according to the boolean value status.'''
         fmt = 'BB'
-        packet = struct.pack(fmt, PICOLCD_BACKLIGHT, status)
+        if status is True:
+            packet = struct.pack(fmt, PICOLCD_BACKLIGHT, 1)
+        else:
+            packet = struct.pack(fmt, PICOLCD_BACKLIGHT, 0)
         return packet
 
     def set_backlight(self, status):
         packet = self.generate_backlight_packet(status)
         self.lcd.write_command(packet)
-        
+
     def start_button_listener(self):
         logging.info(_("Starting button listener thread."))
 
