@@ -56,7 +56,7 @@ class PicoLCDButtonListener(threading.Thread):
         while True:
             if self.please_stop:
                 return
-            button = self.lcd.get_button(self.check_if_time_to_stop)
+            button = self.lcd.get_event(self.check_if_time_to_stop)
             if self.button_cbs is not None and button is not None and len(self.button_cbs) > 0:
                 logging.debug("Button was: %s" % button)
                 for cb in self.button_cbs:
@@ -101,8 +101,8 @@ class PicoLCDHardware(object):
         endp = self.lcd_interface.endpoints[1]
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
 
-    def get_button(self, should_i_stop):
-        '''Blocks until a button down event is detected, and returns it.'''
+    def get_event(self, should_i_stop):
+        '''Blocks until a PicoLCD event is detected, and returns it.'''
         endp = self.lcd_interface.endpoints[0]
         while True:
             logging.debug(_("Re-running interruptRead loop..."))

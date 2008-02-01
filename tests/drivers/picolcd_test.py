@@ -7,8 +7,13 @@ import peephole.drivers.picolcd
 class PicoLCDTest(unittest.TestCase):
 
     # fixtures
-    packet_backlight_on  = array('B', [0x91, 0x01]).tostring()
-    packet_backlight_off = array('B', [0x91, 0x00]).tostring()
+    packet_backlight_on  = array('B',
+                                 [0x91, 0x01]).tostring()
+    packet_backlight_off = array('B',
+                                 [0x91, 0x00]).tostring()
+
+    packet_flash_external_eeprom = array('B',
+                                         [0x32, 0x
 
     def setUp(self):
         self.picolcd = peephole.drivers.picolcd.PicoLCD()
@@ -87,6 +92,10 @@ class PicoLCDTest(unittest.TestCase):
     def testGenerateBacklightTurnOff(self):
         off_packet = self.picolcd.generate_backlight_packet(False)
         self.assertEquals(off_packet, self.packet_backlight_off)
+
+    def writeExternalEepromTest(self):
+        pass
+
 
 
 
