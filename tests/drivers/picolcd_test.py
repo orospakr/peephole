@@ -1,19 +1,23 @@
 import unittest
-from array import array
+
 import struct
 
+from tests.util import packet_fixture
 import peephole.drivers.picolcd
 
 class PicoLCDTest(unittest.TestCase):
 
-    # fixtures
-    packet_backlight_on  = array('B',
-                                 [0x91, 0x01]).tostring()
-    packet_backlight_off = array('B',
-                                 [0x91, 0x00]).tostring()
+    PACKET_BACKLIGHT_ON = packet_fixture(
+        [0x91, 0x01]
+        )
 
-    packet_flash_external_eeprom = array('B',
-                                         [0x32, 0x
+    PACKET_BACKLIGHT_OFF = packet_fixture(
+        [0x91, 0x00]
+        )
+
+    PACKET_FLASH_INTERNAL_EEPROM = packet_fixture(
+        [0x32, 0x00]
+        )
 
     def setUp(self):
         self.picolcd = peephole.drivers.picolcd.PicoLCD()
@@ -25,11 +29,9 @@ class PicoLCDTest(unittest.TestCase):
         final_text   = "    Bye Computer    "
         self.assertEqual(len(row), 20)
         self.assertEqual(len(final_text), 20)
-
         result = peephole.drivers.picolcd.replace_text(row,
                                                        replace_text,
                                                        replace_at)
-
         self.assertEqual(len(result), 20)
 
         self.assertEqual(final_text, result)
@@ -41,7 +43,6 @@ class PicoLCDTest(unittest.TestCase):
         #final_text   = "    Bye. It was nice"
         got_exception = False
         result = ""
-
         self.assertEqual(len(row), 20)
         #self.assertEqual(len(final_text), 20)
         try:
@@ -59,16 +60,12 @@ class PicoLCDTest(unittest.TestCase):
         replace_text =         "Computerdude"
         replace_at = 8
         final_text =   "  Hello Computerdude"
-
-
         self.assertEqual(len(row), 20)
         self.assertEqual(len(final_text), 20)
         result = peephole.drivers.picolcd.replace_text(row,
                                                        replace_text,
                                                        replace_at)
-
         self.assertEqual(len(result), 20)
-
         self.assertEqual(final_text, result)
 
     def testGenerateText(self):
@@ -87,13 +84,13 @@ class PicoLCDTest(unittest.TestCase):
 
     def testGenerateBacklightTurnOn(self):
         on_packet = self.picolcd.generate_backlight_packet(True)
-        self.assertEquals(on_packet, self.packet_backlight_on)
+        self.assertEquals(on_packet, self.PACKET_BACKLIGHT_ON)
 
     def testGenerateBacklightTurnOff(self):
         off_packet = self.picolcd.generate_backlight_packet(False)
-        self.assertEquals(off_packet, self.packet_backlight_off)
+        self.assertEquals(off_packet, self.PACKET_BACKLIGHT_OFF)
 
-    def writeExternalEepromTest(self):
+    def writeInternalEepromTest(self):
         pass
 
 
