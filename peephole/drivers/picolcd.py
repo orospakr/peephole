@@ -34,6 +34,7 @@ PICOLCD_GET_IRDATA = 0x21
 PICOLCD_GET_KEYDATA = 0x11
 PICOLCD_BACKLIGHT = 0x91
 
+
 def replace_text(orig_buffer, new_content, col):
     '''Replaces the contents of orig_buffer at col with new_content.'''
     if (len(new_content) + col) > 20:
@@ -126,12 +127,13 @@ class PicoLCDHardware(object):
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
 
-    button_cbs = []
-
-    # these two strings contain the contents of the display as we know it.
-    # this is done because the device is write-only, and we need to know what
-    # the contents are for the "burn in" feature.
-    contents = ['' * 20, '' * 20]
+    def __init__(self):
+        self.button_cbs = []
+        # these two strings contain the contents of the display as we know it.
+        # this is done because the device is write-only, and we need to know what
+        # the contents are for the "burn in" feature
+        self.contents = [' ' * 20, ' ' * 20]
+        peephole.drivers.driver.Driver.__init__(self)
 
     def add_button_callback(self, cb):
         self.button_cbs.append(cb)
@@ -212,6 +214,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''Draws a little meter on the right hand side of the display.
 
         value -- a decimal number between 0 and 1.'''
+        logging.debug("Drawing meter: %d" % value)
         # probably not the best rounding job, but whatever.
         assert (value >= 0) and (value <= 1)
         rows = int(value * 14)
@@ -227,9 +230,6 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.set_text(top_half_character, 0, 19)
         self.set_text(bottom_half_character, 1, 19)
 
-    def __init__(self):
-        pass
-
     def start(self):
         '''We have this logic started separately from the class constructor,
         so this class can be instantiated by the test suite.'''
@@ -238,7 +238,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
         #new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
-        new = replace_text(self.contents[row], text, row)
+        new = replace_text(self.contents[row], text, col)
         self.contents[row] = new[:20]
         try:
             assert len(self.contents[row]) == 20
