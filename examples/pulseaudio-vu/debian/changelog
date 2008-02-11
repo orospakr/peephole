@@ -1,0 +1,19 @@
+pavumeter (0.9.2-2) unstable; urgency=low
+
+  * debian/pavumeter.1: Fix a typo in pavumeter manpage. (Closes: #410601)
+  * debian/patches/01_use_stock_g2.14_icons.dpatch:
+    - Removed. No longer needed with Gnome 2.18.
+
+ -- CJ van den Berg <cj@vdbonline.com>  Thu, 31 May 2007 23:11:15 +0200
+
+pavumeter (0.9.2-1) unstable; urgency=low
+
+  [ CJ van den Berg ]
+  * Initial release
+
+  [ Loic Minier ]
+  * Depend on gnome-icon-theme for the icons.
+  * Clarify which files are under which license.
+
+ -- Loic Minier <lool@dooz.org>  Tue, 24 Oct 2006 20:53:17 +0200
+

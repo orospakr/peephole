@@ -1,0 +1,50 @@
+This package was debianized by CJ van den Berg <cj@vdbonline.com> on
+Thu, 10 Aug 2006 15:59:43 +0200.
+
+It was downloaded from http://0pointer.de/lennart/projects/pavumeter/
+
+Upstream Author: Lennart Poettering <mzihzrgre@0pointer.de>
+
+Copyright: Copyright 2004-2006 Lennart Poettering
+
+License:
+
+ src/vumeter.cc is licensed under the LGPL, this will change to the GPL in
+ the future:
+
+   This package is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This package is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+   General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with this package; if not, write to the Free Software Foundation,
+   Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU Lesser General Public
+License can be found in `/usr/share/common-licenses/LGPL'.
+
+ All other files, unless otherwise stated, are licensed under the GPL:
+
+   This package is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This package is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this package; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL'.
+

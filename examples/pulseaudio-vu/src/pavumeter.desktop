@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=PulseAudio Volume Meter
+GenericName=Volume Meter
+Comment=Monitor the output or input volume
+Exec=pavumeter
+Icon=audio-input-microphone
+StartupNotify=true
+Type=Application
+Categories=Application;AudioVideo;Audio;

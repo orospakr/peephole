@@ -1,0 +1,2 @@
+?package(pavumeter):needs="X11" section="Apps/Sound"\
+  title="pavumeter" command="/usr/bin/pavumeter"

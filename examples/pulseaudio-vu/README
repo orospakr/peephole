@@ -1,0 +1,153 @@
+
+                         PulseAudio Volume Meter 0.9.2
+
+   Copyright 2004-2006 Lennart Poettering <mzihzrgre (at) 0pointer (dot)
+   de>
+     * [1]License
+     * [2]News
+     * [3]Overview
+     * [4]Current Status
+     * [5]Documentation
+     * [6]Requirements
+     * [7]Installation
+     * [8]Acknowledgements
+     * [9]Download
+
+License
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+News
+
+   Sat Jul 8 2006:
+
+   [10]Version 0.9.2 released; compatibility with [11]PulseAudio 0.9.2
+
+   Sat May 27 2006:
+
+   [12]Version 0.9.0 released; compatibility with Polypaudio 0.9.0
+
+   Fri Apr 21 2006:
+
+   [13]Version 0.8 released; compatibility with Polypaudio 0.8
+
+   Sun Nov 21 2004:
+
+   [14]Version 0.3 released; compatibility with Polypaudio 0.7; decaying
+   of signal levels
+
+   Thu Oct 28 2004:
+
+   [15]Version 0.3 released; compatibility with Polypaudio 0.6
+
+   Mon Sep 20 2004:
+
+   [16]Version 0.2 released; compatibility with Polypaudio 0.5
+
+   Wed Sep 9 2004:
+
+   [17]Version 0.1 released
+
+Overview
+
+   PulseAudio Volume Meter (pavumeter) is a simple GTK volume meter for
+   the [18]PulseAudio sound server.
+
+   Everybody loves [19]screenshots.
+
+Current Status
+
+   Works perfectly.
+
+Documentation
+
+   There is not much to say. Just run pavumeter and see yourself. You may
+   specify the source to monitor on the command line. If ommited the
+   daemon's default source is selected.
+
+Requirements
+
+   Currently, pavumeter is tested on Linux only.
+
+   pavumeter was developed and tested on Debian GNU/Linux "testing" from
+   September 2004, it should work on most other Linux distributions (and
+   maybe Unix versions) since it uses GNU autoconf for source code
+   configuration.
+
+   pavumeter requires [20]gtkmm installed.
+
+   Obviously pavumeter requires an installation of [21]PulseAudio
+   (version 0.9.2).
+
+Installation
+
+   As this package is made with the GNU autotools you should run
+   ./configure inside the distribution directory for configuring the
+   source tree. After that you should run make for compilation and make
+   install (as root) for installation of pavumeter.
+
+Acknowledgements
+
+   None so far.
+
+Download
+
+   The newest release is always available from
+   [22]http://0pointer.de/lennart/projects/pavumeter/
+
+   The current release is [23]0.9.2
+
+   Get pavumeter's development sources from the [24]Subversion
+   [25]repository ([26]viewcvs):
+svn checkout svn://svn.0pointer.net/pavumeter/trunk pavumeter
+
+   If you want to be notified whenever I release a new version of this
+   software use the subscription feature of [27]Freshmeat.
+     _________________________________________________________________
+
+
+    Lennart Poettering <mzihzrgre (at) 0pointer (dot) de>, July 2006
+
+   $Id: README.html.in 44 2006-07-08 13:56:26Z lennart $
+
+References
+
+   1. README#license
+   2. README#news
+   3. README#overview
+   4. README#status
+   5. README#documentation
+   6. README#requirements
+   7. README#installation
+   8. README#acks
+   9. README#download
+  10. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.9.2.tar.gz
+  11. http://pulseaudio.org/
+  12. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.9.0.tar.gz
+  13. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.8.tar.gz
+  14. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.4.tar.gz
+  15. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.3.tar.gz
+  16. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.2.tar.gz
+  17. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.1.tar.gz
+  18. http://0pointer.de/lennart/projects/pulseaudio/
+  19. http://0pointer.de/lennart/projects/pavumeter//screenshot.png
+  20. http://gtkmm.sf.net/
+  21. http://pulseaudio.org/
+  22. http://0pointer.de/lennart/projects/pavumeter/
+  23. http://0pointer.de/lennart/projects/pavumeter/pavumeter-0.9.2.tar.gz
+  24. http://subversion.tigris.org/
+  25. svn://svn.0pointer.net/pavumeter
+  26. http://0pointer.net/cgi-bin/viewcvs.cgi/?root=pavumeter
+  27. http://freshmeat.net/projects/pavumeter/

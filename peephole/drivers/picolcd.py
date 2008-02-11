@@ -214,7 +214,6 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''Draws a little meter on the right hand side of the display.
 
         value -- a decimal number between 0 and 1.'''
-        logging.debug("Drawing meter: %d" % value)
         # probably not the best rounding job, but whatever.
         assert (value >= 0) and (value <= 1)
         rows = int(value * 14)
@@ -244,7 +243,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
             assert len(self.contents[row]) == 20
         except AssertionError:
             logging.debug("the row length was %i, which should never be different than 20!" % len(self.contents[row]))
-        logging.debug('Row %i now contains "%s".' % (row, self.contents[row]))
+        #logging.debug('Row %i now contains "%s".' % (row, self.contents[row]))
         # we don't actually send the contents buffer.  The device is faster (I think)
         # if you just send the changed bit, so we might as well, because this code
         # is known good.

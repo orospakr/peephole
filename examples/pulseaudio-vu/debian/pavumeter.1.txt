@@ -1,0 +1,71 @@
+pavumeter(1)
+============
+
+
+Name
+----
+pavumeter - A volume meter for the PulseAudio sound server
+
+
+Synopsis
+--------
+'pavumeter' [OPTION...] [<sink>|--record <source>]
+
+
+Description
+-----------
+Displays a live volume meter of a PulseAudio source or sink.
+
+
+Options
+-------
+<sink>::
+        The PulseAudio sink device to monitor. If _<sink>_ is not
+        specified, the default output sink is used.
+
+--record <source>::
+        Show Recording Levels. _<source>_ is the PulseAudio source device to
+        monitor. If _<source>_ is not specified, the default input source
+        is used.
+
+--display=DISPLAY::
+        Specify the X display to use.
+
+-h, --help::
+        Show a summary of options.
+
+--help-all::
+        Show all available options.
+
+--help-gtk::
+        Show standard gtk options.
+
+
+See Also
+--------
+pulseaudio(1), pavucontrol(1), padevchooser(1)
+
+
+Resources
+---------
+Homepage: http://0pointer.de/lennart/projects/pavumeter/[]
+
+PulseAudio web site: http://pulseaudio.org/[]
+
+
+Author
+------
+Written by Lennart Poettering <mzihzrgre@0pointer.de>
+
+
+Documentation
+-------------
+Documentation by CJ van den Berg <cj@vdbonline.com>.
+
+
+Copying
+-------
+Copyright \(C) 2004-2006 Lennart Poettering. Free use of this software is
+granted under the terms of the GNU General Public License (GPL).
+
+
