@@ -3,6 +3,12 @@ from gettext import gettext as _
 import logging
 from peephole.util import virtual
 
+def replace_text(orig_buffer, new_content, col, rowlen):
+    '''Replaces the contents of orig_buffer at col with new_content.'''
+    if (len(new_content) + col) > rowlen:
+        raise ValueError, _("Too big to fit on the display!")
+    return orig_buffer[:col] + new_content + orig_buffer[col+len(new_content):]
+
 def get_usb_device(vendor_id, device_id):
     buses = usb.busses()
     for bus in buses:
@@ -59,5 +65,18 @@ class Driver(object):
         comprehensive get_geometry() method.
         '''
 
+    @virtual
+    def set_backlight(self, status):
+        '''Turns the device's backlight on or off.'''
 
-    
+    @virtual
+    def draw_meter(self, value):
+        '''Draws a simple VU meter on the display of the LCD, using whichever method
+        is best suited to the device.
+
+        Intended mostly as a convenience "I need it to work now" function.'''
+
+
+
+
+

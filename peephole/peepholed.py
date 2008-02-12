@@ -28,6 +28,7 @@ import sys
 #  dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/PicoLCD ca.infoglobe.peephole.LCD.DisplayText string:0 string:"stuffs"
 
 import peephole.drivers.picolcd
+import peephole.drivers.gtklcd
 
 LCD_INTERFACE = 'ca.infoglobe.peephole.LCD'
 PEEPHOLE_WELL_KNOWN_NAME = 'ca.infoglobe.peephole'
@@ -50,7 +51,7 @@ class DBusLCD(dbus.service.Object):
         self.bus_or_tube = bus_or_tube
         self.lcd = lcd
         lcd.add_button_callback(self.ButtonPressed)
-        lcd.start_button_listener()
+        #lcd.start_button_listener()
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='is', out_signature='')
@@ -95,10 +96,10 @@ def main():
 
     system_bus = dbus.SystemBus()
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
-    my_lcd = peephole.drivers.picolcd.PicoLCD()
+    #my_lcd = peephole.drivers.picolcd.PicoLCD()
+    my_lcd = peephole.drivers.gtklcd.GTK()
     my_lcd.start()
     my_lcd.clear()
-    my_lcd.write_vu_bars()
     my_lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
     #my_lcd.burn_screen()
     #my_lcd.draw_meter(0)
@@ -107,14 +108,13 @@ def main():
     #sys.exit()
     # while True:
     #     my_lcd.get_button()
-    dbus_object = DBusLCD(my_lcd, system_bus, 'PicoLCD')
+    dbus_object = DBusLCD(my_lcd, system_bus, 'GTK')
 
     try:
         mainloop.run()
     except KeyboardInterrupt:
         # program is now quitting, so...
         my_lcd.stop()
-
 
 if __name__ == "__main__":
     main()

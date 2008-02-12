@@ -35,11 +35,7 @@ PICOLCD_GET_KEYDATA = 0x11
 PICOLCD_BACKLIGHT = 0x91
 
 
-def replace_text(orig_buffer, new_content, col):
-    '''Replaces the contents of orig_buffer at col with new_content.'''
-    if (len(new_content) + col) > 20:
-        raise ValueError, _("Too big to fit on the display!")
-    return orig_buffer[:col] + new_content + orig_buffer[col+len(new_content):]
+
 
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cbs):
@@ -96,7 +92,7 @@ class PicoLCDHardware(object):
 
         self.lcd_interface = self.lcd_configuration.interfaces[0][0]
         time.sleep(1) # also for shame
-        #self.start_button_listener()
+        self.start_button_listener()
 
     def write_command(self, packet):
         endp = self.lcd_interface.endpoints[1]
@@ -233,11 +229,12 @@ class PicoLCD(peephole.drivers.driver.Driver):
         '''We have this logic started separately from the class constructor,
         so this class can be instantiated by the test suite.'''
         self.lcd = PicoLCDHardware()
+        self.write_vu_bars()
 
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
         #new = self.contents[row][:col+1] + text + self.contents[row][:col+1+len(text)]
-        new = replace_text(self.contents[row], text, col)
+        new = peephole.drivers.driver.replace_text(self.contents[row], text, col, 20)
         self.contents[row] = new[:20]
         try:
             assert len(self.contents[row]) == 20

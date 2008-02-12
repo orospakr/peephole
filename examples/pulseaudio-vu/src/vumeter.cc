@@ -278,7 +278,7 @@ void MainWindow::startDBus() {
 
     dbusproxy = dbus_g_proxy_new_for_name(connection,
                                            "ca.infoglobe.peephole",
-                                           "/ca/infoglobe/peephole/LCDs/PicoLCD",
+                                           "/ca/infoglobe/peephole/LCDs/GTK",
                                            "ca.infoglobe.peephole.LCD");
 
 }
