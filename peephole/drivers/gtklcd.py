@@ -64,7 +64,7 @@ class GTK(peephole.drivers.driver.Driver):
         self.window.destroy()
 
     def clear(self):
-        self.contents = [[' ' * LCD_COLUMNS] * LCD_ROWS][0]
+        self.contents = [[' ' * LCD_COLUMNS] * LCD_ROWS][0] # not sure why python ends up wrapping it in an extra array, but it does what I expect otherwise! <3
         # also refresh LCDWindow...
 
     def set_backlight(self, status):

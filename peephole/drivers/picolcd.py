@@ -34,9 +34,6 @@ PICOLCD_GET_IRDATA = 0x21
 PICOLCD_GET_KEYDATA = 0x11
 PICOLCD_BACKLIGHT = 0x91
 
-
-
-
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cbs):
         threading.Thread.__init__(self)
@@ -124,15 +121,12 @@ class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
 
     def __init__(self):
-        self.button_cbs = []
+
         # these two strings contain the contents of the display as we know it.
         # this is done because the device is write-only, and we need to know what
         # the contents are for the "burn in" feature
         self.contents = [' ' * 20, ' ' * 20]
         peephole.drivers.driver.Driver.__init__(self)
-
-    def add_button_callback(self, cb):
-        self.button_cbs.append(cb)
 
     def generate_text_packet(self, text, row, col):
         assert(len(text) < 256)

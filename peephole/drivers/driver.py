@@ -23,7 +23,9 @@ class Driver(object):
 
     When adding a driver to Peephole, you must implement the
     interface defined here.  These methods are called by Peephole's
-    core to actually do the work.
+    core to actually do the work.  Some of the below methods (the
+    ones that aren't decorated @virtual) are convenience methods.
+    You don't need or want to overload those.
 
     You are allowed to spawn a thread to do jobs like listening
     for key events (see the PicoLCD driver for an example thereof).
@@ -33,12 +35,14 @@ class Driver(object):
     does not support that feature.
     '''
     def __init__(self):
-        pass
+        self.button_cbs = []
 
     @virtual
     def scancode_to_keysym(self):
         '''Callback used to convert a hardware scancode into the
-        Peephole keysym format.'''
+        Peephole keysym format (which is shameless ripped from
+        the X11 keysym table.  If there's a keysym you wish to use,
+        feel free to add it.'''
 
     @virtual
     def start(self):
@@ -71,8 +75,8 @@ class Driver(object):
 
     @virtual
     def draw_meter(self, value):
-        '''Draws a simple VU meter on the display of the LCD, using whichever method
-        is best suited to the device.
+        '''Draws a simple VU meter on the display of the LCD.  You can
+        implement this with whatever method is best suited for the device.
 
         Intended mostly as a convenience "I need it to work now" function.'''
 
@@ -83,6 +87,25 @@ class Driver(object):
         characters.  Remember, this should return something different
         for different instances of this device, in case there is more than
         one plugged in.'''
+
+    def add_button_callback(self, cb):
+        '''This is called by Peephole's core, to register a callback function
+        that your driver should call whenever a new button event is available.
+
+        This we be called before start().
+
+        self.button_cbs.append(cb)
+        '''
+
+    @virtual
+    def fire_btn_cb(self, button):
+        '''You should call this inside your driver whenever you have new
+        button presses available.
+
+        (You can also manually iterate over button_cbs if you really want to...'''
+
+        for cb in self.button_cbs:
+            cb(button)
 
 
 
