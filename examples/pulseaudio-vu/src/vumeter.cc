@@ -46,19 +46,12 @@ protected:
     class ChannelInfo {
     public:
         ChannelInfo(MainWindow &w, const Glib::ustring &l);
-        Gtk::Label *label;
-        Gtk::ProgressBar *progress;
+      //Gtk::Label *label;
+      //Gtk::ProgressBar *progress;
+      double fraction;
     };
 
-    Gtk::VBox vbox, titleVBox;
-    Gtk::HBox titleHBox;
-    Gtk::Table table;
     std::vector<ChannelInfo*> channels;
-    Gtk::Image image;
-    Gtk::Label titleLabel;
-    Gtk::Label subtitleLabel;
-    Gtk::HSeparator separator;
-    Gtk::EventBox eventBox;
 
     float *levels;
 
@@ -96,47 +89,13 @@ public:
 
 MainWindow::MainWindow(const pa_channel_map &map, const char *source_name) :
     Gtk::Window(),
-    table(1, 2),
+    //    table(1, 2),
     latency(0) {
 
     char t[256];
     int n;
 
-    set_title("PulseAudio Volume Meter");
-
-    gtk_window_set_icon_name(GTK_WINDOW(gobj()), "audio-input-microphone");
-
-    add(vbox);
-
-    Gdk::Color c("white");
-    eventBox.modify_bg(Gtk::STATE_NORMAL, c);
-
-    vbox.pack_start(eventBox, false, false);
-
-    image.set_from_icon_name("audio-input-microphone", Gtk::ICON_SIZE_DIALOG);
-
-    eventBox.add(titleHBox);
-    titleHBox.pack_start(image, false, false);
-    titleHBox.pack_end(titleVBox, true, true);
-    titleHBox.set_border_width(12);
-    titleHBox.set_spacing(12);
-
-    titleVBox.add(titleLabel);
-    titleVBox.add(subtitleLabel);
-    titleVBox.set_spacing(6);
-
-    titleLabel.set_markup("<span size=\"18000\" color=\"black\"><b>PulseAudio Volume Meter</b></span>");
-    titleLabel.set_alignment(0, 1);
-    snprintf(t, sizeof(t), "Showing signal levels of source <b>%s</b>.", source_name);
-    subtitleLabel.set_markup(t);
-    subtitleLabel.set_alignment(0, 0);
-
-    vbox.pack_start(separator, false, false);
-
-    table.set_border_width(12);
-    table.set_row_spacings(6);
-    table.set_col_spacings(12);
-    vbox.pack_start(table, true, true);
+    printf("Showing signal levels of source <b>%s</b>.", source_name);
 
     for (n = 0; n < map.channels; n++) {
         snprintf(t, sizeof(t), "<b>%s:</b>", pa_channel_position_to_string(map.map[n]));
@@ -148,8 +107,6 @@ MainWindow::MainWindow(const pa_channel_map &map, const char *source_name) :
     levels = NULL;
     display_timeout_signal_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::on_display_timeout), 10);
     calc_timeout_signal_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::on_calc_timeout), 50);
-
-    show_all();
 
     startDBus();
 }
@@ -184,15 +141,6 @@ void MainWindow::addChannel(const Glib::ustring &l) {
 }
 
 MainWindow::ChannelInfo::ChannelInfo(MainWindow &w, const Glib::ustring &l) {
-    label = Gtk::manage(new Gtk::Label(l, 1.0, 0.5));
-    label->set_markup(l);
-
-    progress = Gtk::manage(new Gtk::ProgressBar());
-    progress->set_fraction(0);
-
-    w.table.resize(w.channels.size()+1, 2);
-    w.table.attach(*label, 0, 1, w.channels.size(), w.channels.size()+1, Gtk::FILL, (Gtk::AttachOptions) 0);
-    w.table.attach(*progress, 1, 2, w.channels.size(), w.channels.size()+1, Gtk::EXPAND|Gtk::FILL, (Gtk::AttachOptions) 0);
 }
 
 void MainWindow::pushData(const float *d, unsigned samples) {
@@ -234,8 +182,9 @@ void MainWindow::showLevels(const LevelInfo &i) {
 
         //if (n == 0) {
             printf("%f\n" ,level);
-            sendVUToLCD(level);
             //}
+            c->fraction = (level > 1 ? 1 : level);
+            sendVUToLCD(c->fraction);
         //c->progress->set_fraction(level > 1 ? 1 : level);
     }
 
@@ -251,13 +200,14 @@ void MainWindow::decayLevels() {
 
         ChannelInfo *c = channels[n];
 
-        level = c->progress->get_fraction();
+        level = c->fraction; // andrew come back here
 
         if (level <= 0)
             continue;
 
         level = level > DECAY_LEVEL ? level - DECAY_LEVEL : 0;
-        c->progress->set_fraction(level);
+        c->fraction = level;
+        //sendVUToLCD(c->fraction);
     }
 }
 
@@ -381,8 +331,8 @@ void show_error(const char *txt, bool show_pa_error = true) {
     if (show_pa_error)
         snprintf(buf, sizeof(buf), "%s: %s", txt, pa_strerror(pa_context_errno(context)));
 
-    Gtk::MessageDialog dialog(show_pa_error ? buf : txt, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
-    dialog.run();
+    //    Gtk::MessageDialog dialog(show_pa_error ? buf : txt, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+    fprintf(stderr, buf);
 
     Gtk::Main::quit();
 }
