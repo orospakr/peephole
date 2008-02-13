@@ -108,7 +108,7 @@ def main():
     #sys.exit()
     # while True:
     #     my_lcd.get_button()
-    dbus_object = DBusLCD(my_lcd, system_bus, 'GTK')
+    dbus_object = DBusLCD(my_lcd, system_bus, my_lcd.get_name())
 
     try:
         mainloop.run()

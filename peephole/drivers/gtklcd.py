@@ -84,4 +84,6 @@ class GTK(peephole.drivers.driver.Driver):
     def draw_meter(self, value):
         self.window.update_meter(value)
 
+    def get_name(self):
+        return 'GTK'
 

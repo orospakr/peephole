@@ -302,3 +302,6 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.listener_thread.shutdown()
         logging.info("Request sent.  Please wait a moment...")
         self.listener_thread.join()
+
+    def get_name(self):
+        return 'PicoLCD'

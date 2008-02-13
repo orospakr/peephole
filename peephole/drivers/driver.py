@@ -76,6 +76,14 @@ class Driver(object):
 
         Intended mostly as a convenience "I need it to work now" function.'''
 
+    @virtual
+    def get_name(self):
+        '''Returns the name of this instance of the device.  This is used in the
+        D-Bus path, so please don't use any spaces or otherwise weird
+        characters.  Remember, this should return something different
+        for different instances of this device, in case there is more than
+        one plugged in.'''
+
 
 
 
