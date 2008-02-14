@@ -54,12 +54,12 @@ class Driver(object):
         '''Set the string text at row and column of
         the display.'''
 
-    @virtual
     def add_button_callback(self, cb):
         '''Adds a callback to be fired.
 
         The callback will be threadsafe (it will of course need
         the GIL).'''
+        self.button_cbs.add(cb)
 
     @virtual
     def get_lines(self):
@@ -94,10 +94,10 @@ class Driver(object):
 
         This we be called before start().
 
-        self.button_cbs.append(cb)
         '''
+        self.button_cbs.append(cb)
 
-    @virtual
+#    @virtual
     def fire_btn_cb(self, button):
         '''You should call this inside your driver whenever you have new
         button presses available.
@@ -108,7 +108,6 @@ class Driver(object):
         this method when you have a key press ready.
 
         (You can also manually iterate over button_cbs if you really want to...)'''
-
         for cb in self.button_cbs:
             cb(button)
 

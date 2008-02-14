@@ -20,14 +20,19 @@ pygtk.require('2.0')
 import gtk
 # crap, how do I detect lack of DISPLAY or gtk libs?
 
+import logging
+
 import peephole.drivers.driver
+from peephole.drivers import buttons
 
 LCD_COLUMNS = 20
 LCD_ROWS = 2
 
 class LCDWindow(gtk.Window):
-    def __init__(self):
+    def __init__(self, gtklcd):
+        self.gtklcd = gtklcd
         gtk.Window.__init__(self)
+        self.set_title("Peephole GTK")
         panel_hbox = gtk.HBox()
         self.add(panel_hbox)
         panel_hbox.show()
@@ -35,9 +40,11 @@ class LCDWindow(gtk.Window):
         panel_hbox.add(plusminusbox)
         plusminusbox.show()
         plus_button = gtk.Button("+")
+        plus_button.connect("clicked", self.plus_button_clicked, None)
         plusminusbox.add(plus_button)
         plus_button.show()
         minus_button = gtk.Button("-")
+        minus_button.connect("clicked", self.minus_button_clicked, None)
         plusminusbox.add(minus_button)
         minus_button.show()
 
@@ -48,32 +55,101 @@ class LCDWindow(gtk.Window):
         self.label = gtk.Label()
         lcdvbox.add(self.label)
         self.label.show()
+
+        fbuttons_hbox = gtk.HBox()
+        fbuttons_hbox.show()
+        lcdvbox.add(fbuttons_hbox)
+
+        f1button = gtk.Button("F1")
+        f1button.connect("clicked", self.f1_button_clicked, None)
+        f1button.show()
+        fbuttons_hbox.add(f1button)
+        f2button = gtk.Button("F2")
+        f2button.connect("clicked", self.f2_button_clicked, None)
+        f2button.show()
+        fbuttons_hbox.add(f2button)
+        f3button = gtk.Button("F3")
+        f3button.connect("clicked", self.f3_button_clicked, None)
+        f3button.show()
+        fbuttons_hbox.add(f3button)
+        f4button = gtk.Button("F4")
+        f4button.connect("clicked", self.f4_button_clicked, None)
+        f4button.show()
+        fbuttons_hbox.add(f4button)
+        f5button = gtk.Button("F5")
+        f5button.connect("clicked", self.f5_button_clicked, None)
+        f5button.show()
+        fbuttons_hbox.add(f5button)
+
         self.meter = gtk.ProgressBar()
-        lcdvbox.add(self.meter)
+        self.meter.set_orientation(gtk.PROGRESS_BOTTOM_TO_TOP)
+        panel_hbox.add(self.meter)
         self.meter.show()
 
         directions_box = gtk.VBox()
         directions_box.show()
         panel_hbox.add(directions_box)
         up_button = gtk.Button(u"↑")
+        up_button.connect("clicked", self.up_button_clicked, None)
         up_button.show()
         directions_box.add(up_button)
         left_right_box = gtk.HBox()
         left_right_box.show()
         directions_box.add(left_right_box)
         left_button = gtk.Button(u"←")
+        left_button.connect("clicked", self.left_button_clicked, None)
         left_button.show()
         left_right_box.add(left_button)
         ok_button = gtk.Button("OK")
+
         ok_button.show()
+        ok_button.connect("clicked", self.ok_button_clicked, None)
         left_right_box.add(ok_button)
         right_button = gtk.Button(u"→")
+        right_button.connect("clicked", self.right_button_clicked, None)
         right_button.show()
         left_right_box.add(right_button)
 
         down_button = gtk.Button(u"↓")
+        down_button.connect("clicked", self.down_button_clicked, None)
         down_button.show()
         directions_box.add(down_button)
+
+    def ok_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_Return)
+
+    def plus_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_plus)
+
+    def minus_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_minus)
+
+    def f1_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_F1)
+
+    def f2_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_F2)
+
+    def f3_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_F3)
+
+    def f4_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_F4)
+
+    def f5_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_F5)
+
+    def up_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_Up)
+
+    def down_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_Down)
+
+    def left_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_Left)
+
+    def right_button_clicked(self, widget, data=None):
+        self.gtklcd.fire_btn_cb(buttons.XK_Right)
 
     def update(self, contents):
         #self.label.set_markup("")
@@ -92,14 +168,12 @@ class GTK(peephole.drivers.driver.Driver):
     This is *really easy* because Peephole already has a running
     glib event loop.'''
 
-    button_cbs = []
-
     def __init__(self):
         self.clear()
         peephole.drivers.driver.Driver.__init__(self)
 
     def start(self):
-        self.window = LCDWindow()
+        self.window = LCDWindow(self)
         self.window.show()
 
     def stop(self):

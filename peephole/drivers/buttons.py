@@ -32,5 +32,4 @@ XK_Begin                       = 0xff58  #  BOL
 
 XK_Return                      = 0xff0d  #  Return, enter
 XK_plus                        = 0x002b  #  U+002B PLUS SIGN
-
-
+XK_minus                       = 0x002d  #  U+002D HYPHEN-MINUS
