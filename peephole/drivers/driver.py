@@ -37,12 +37,12 @@ class Driver(object):
     def __init__(self):
         self.button_cbs = []
 
-    @virtual
-    def scancode_to_keysym(self):
-        '''Callback used to convert a hardware scancode into the
-        Peephole keysym format (which is shameless ripped from
-        the X11 keysym table.  If there's a keysym you wish to use,
-        feel free to add it.'''
+#     @virtual
+#     def scancode_to_keysym(self):
+#         '''Callback used to convert a hardware scancode into the
+#         Peephole keysym format (which is shameless ripped from
+#         the X11 keysym table.  If there's a keysym you wish to use,
+#         feel free to add it.'''
 
     @virtual
     def start(self):
@@ -102,7 +102,12 @@ class Driver(object):
         '''You should call this inside your driver whenever you have new
         button presses available.
 
-        (You can also manually iterate over button_cbs if you really want to...'''
+        The button callbacks expect one argument, in the form of an Peephole
+        keysym, which is more or less the same as the X11 keysyms.  So, in your
+        driver, use the appropriate value in peephole.drivers.buttons and call
+        this method when you have a key press ready.
+
+        (You can also manually iterate over button_cbs if you really want to...)'''
 
         for cb in self.button_cbs:
             cb(button)

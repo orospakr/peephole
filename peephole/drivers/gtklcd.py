@@ -1,3 +1,4 @@
+# coding: utf8
 # Peephole - A D-Bus service for LCD displays
 # Copyright (C) 2007, 2008 Infoglobe
 
@@ -17,6 +18,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+# crap, how do I detect lack of DISPLAY or gtk libs?
 
 import peephole.drivers.driver
 
@@ -26,20 +28,60 @@ LCD_ROWS = 2
 class LCDWindow(gtk.Window):
     def __init__(self):
         gtk.Window.__init__(self)
-        hbox = gtk.VBox()
-        self.add(hbox)
-        hbox.show()
+        panel_hbox = gtk.HBox()
+        self.add(panel_hbox)
+        panel_hbox.show()
+        plusminusbox = gtk.VBox()
+        panel_hbox.add(plusminusbox)
+        plusminusbox.show()
+        plus_button = gtk.Button("+")
+        plusminusbox.add(plus_button)
+        plus_button.show()
+        minus_button = gtk.Button("-")
+        plusminusbox.add(minus_button)
+        minus_button.show()
+
+        lcdvbox = gtk.VBox()
+        #self.add(lcdvbox)
+        panel_hbox.add(lcdvbox)
+        lcdvbox.show()
         self.label = gtk.Label()
-        hbox.add(self.label)
+        lcdvbox.add(self.label)
         self.label.show()
         self.meter = gtk.ProgressBar()
-        hbox.add(self.meter)
+        lcdvbox.add(self.meter)
         self.meter.show()
 
+        directions_box = gtk.VBox()
+        directions_box.show()
+        panel_hbox.add(directions_box)
+        up_button = gtk.Button(u"↑")
+        up_button.show()
+        directions_box.add(up_button)
+        left_right_box = gtk.HBox()
+        left_right_box.show()
+        directions_box.add(left_right_box)
+        left_button = gtk.Button(u"←")
+        left_button.show()
+        left_right_box.add(left_button)
+        ok_button = gtk.Button("OK")
+        ok_button.show()
+        left_right_box.add(ok_button)
+        right_button = gtk.Button(u"→")
+        right_button.show()
+        left_right_box.add(right_button)
+
+        down_button = gtk.Button(u"↓")
+        down_button.show()
+        directions_box.add(down_button)
+
     def update(self, contents):
-        self.label.set_text("")
+        #self.label.set_markup("")
+        text = '<span font_family="monospace">'
         for line in contents:
-            self.label.set_text(self.label.get_text() + "\n" + line)
+            text = text + line + '\n'
+        text += '</span>'
+        self.label.set_markup(text)
 
     def update_meter(self, fraction):
         self.meter.set_fraction(fraction)
