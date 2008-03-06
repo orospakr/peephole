@@ -34,6 +34,18 @@ PICOLCD_GET_IRDATA = 0x21
 PICOLCD_GET_KEYDATA = 0x11
 PICOLCD_BACKLIGHT = 0x91
 
+def probe():
+    '''Returns PicoLCD objects for all the PicoLCDs found on
+    the system.'''
+    # right now, the probe logic inside the object,
+    # so just fake it.
+    try:
+        pico = PicoLCD()
+        return [pico]
+    except:
+        return []
+
+
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cbs):
         threading.Thread.__init__(self)
@@ -70,7 +82,7 @@ class PicoLCDHardware(object):
     def __init__(self):
         self.lcd_device = peephole.drivers.driver.get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
         if self.lcd_device is None:
-            sys.exit(_("PicoLCD not found."))
+            raise ValueError, _("PicoLCD not found.")
         self.lcd_handle = self.lcd_device.open()
         try:
             self.lcd_handle.detachKernelDriver(0)
@@ -89,6 +101,8 @@ class PicoLCDHardware(object):
 
         self.lcd_interface = self.lcd_configuration.interfaces[0][0]
         time.sleep(1) # also for shame
+
+    def start(self):
         self.start_button_listener()
 
     def write_command(self, packet):
@@ -127,6 +141,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         # the contents are for the "burn in" feature
         self.contents = [' ' * 20, ' ' * 20]
         peephole.drivers.driver.Driver.__init__(self)
+        self.lcd = PicoLCDHardware()
 
     def generate_text_packet(self, text, row, col):
         assert(len(text) < 256)
@@ -222,7 +237,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def start(self):
         '''We have this logic started separately from the class constructor,
         so this class can be instantiated by the test suite.'''
-        self.lcd = PicoLCDHardware()
+        self.lcd.start()
         self.write_vu_bars()
 
     def set_text(self, text, row, col):

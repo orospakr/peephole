@@ -97,24 +97,32 @@ def main():
     system_bus = dbus.SystemBus()
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     #my_lcd = peephole.drivers.picolcd.PicoLCD()
-    my_lcd = peephole.drivers.gtklcd.GTK()
-    my_lcd.start()
-    my_lcd.clear()
-    my_lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
+
+    lcds = []
+    lcds += peephole.drivers.gtklcd.probe()
+    lcds += peephole.drivers.picolcd.probe()
+    dbus_lcds = []
+
+    for lcd in lcds:
+        logging.info("Initialising detected LCD: '%s'." % lcd.get_name())
+        lcd.start()
+        lcd.clear()
+        lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
     #my_lcd.burn_screen()
     #my_lcd.draw_meter(0)
     #my_lcd.test_spin()
-    my_lcd.set_backlight(1)
+        lcd.set_backlight(1)
     #sys.exit()
     # while True:
     #     my_lcd.get_button()
-    dbus_object = DBusLCD(my_lcd, system_bus, my_lcd.get_name())
+        dbus_lcds.append(DBusLCD(lcd, system_bus, lcd.get_name()))
 
     try:
         mainloop.run()
     except KeyboardInterrupt:
         # program is now quitting, so...
-        my_lcd.stop()
+        for lcd in lcds:
+            lcd.stop()
 
 if __name__ == "__main__":
     main()

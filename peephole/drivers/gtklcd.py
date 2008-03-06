@@ -28,6 +28,12 @@ from peephole.drivers import buttons
 LCD_COLUMNS = 20
 LCD_ROWS = 2
 
+def probe():
+    # there's only ever one, so just instantiate it
+    # and return it.
+    lcd = GTK()
+    return [lcd]
+
 class LCDWindow(gtk.Window):
     def __init__(self, gtklcd):
         self.gtklcd = gtklcd
