@@ -17,8 +17,17 @@
 
 import pygtk
 pygtk.require('2.0')
+
+display_available = True
+
+import warnings
+warnings.filterwarnings('error', module='gtk')
+try:
+    import gtk
+except Warning, e:
+    display_available = False
+warnings.resetwarnings()
 import gtk
-# crap, how do I detect lack of DISPLAY or gtk libs?
 
 import logging
 
@@ -31,6 +40,8 @@ LCD_ROWS = 2
 def probe():
     # there's only ever one, so just instantiate it
     # and return it.
+    if display_available is not True:
+        return []
     lcd = GTK()
     return [lcd]
 

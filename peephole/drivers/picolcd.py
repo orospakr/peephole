@@ -24,6 +24,9 @@ from gettext import gettext as _
 
 import peephole.drivers.driver
 
+VENDOR_ID = 0x04d8
+DEVICE_ID = 0x0002
+
 USB_INTERRUPTREAD_TIMEOUT = 4000
 
 PICOLCD_CLEAR_CMD   = 0x94
@@ -37,14 +40,13 @@ PICOLCD_BACKLIGHT = 0x91
 def probe():
     '''Returns PicoLCD objects for all the PicoLCDs found on
     the system.'''
-    # right now, the probe logic inside the object,
-    # so just fake it.
-    try:
-        pico = PicoLCD()
-        return [pico]
-    except:
-        return []
 
+    lcd_device = peephole.drivers.driver.get_usb_device(VENDOR_ID, DEVICE_ID)
+    if lcd_device is None:
+        return []
+    else:
+        pico = PicoLCD(lcd_device)
+        return [pico]
 
 class PicoLCDButtonListener(threading.Thread):
     def __init__(self, lcd, button_cbs):
@@ -75,12 +77,7 @@ class PicoLCDButtonListener(threading.Thread):
 class PicoLCDHardware(object):
     '''Wraps the USB connectivity for the PicoLCD 20x2 device.'''
 
-    # USB device IDs
-    VENDOR_ID = 0x04d8
-    DEVICE_ID = 0x0002
-
-    def __init__(self):
-        self.lcd_device = peephole.drivers.driver.get_usb_device(self.VENDOR_ID, self.DEVICE_ID)
+    def __init__(self, lcd_device):
         if self.lcd_device is None:
             raise ValueError, _("PicoLCD not found.")
         self.lcd_handle = self.lcd_device.open()
@@ -134,14 +131,14 @@ class PicoLCDHardware(object):
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
 
-    def __init__(self):
+    def __init__(self, usb_device):
 
         # these two strings contain the contents of the display as we know it.
         # this is done because the device is write-only, and we need to know what
         # the contents are for the "burn in" feature
         self.contents = [' ' * 20, ' ' * 20]
         peephole.drivers.driver.Driver.__init__(self)
-        self.lcd = PicoLCDHardware()
+        self.usb_device = usb_device
 
     def generate_text_packet(self, text, row, col):
         assert(len(text) < 256)
@@ -237,7 +234,9 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def start(self):
         '''We have this logic started separately from the class constructor,
         so this class can be instantiated by the test suite.'''
+        self.lcd = PicoLCDHardware(self.usb_device)
         self.lcd.start()
+
         self.write_vu_bars()
 
     def set_text(self, text, row, col):

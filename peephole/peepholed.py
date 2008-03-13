@@ -101,6 +101,10 @@ def main():
     lcds = []
     lcds += peephole.drivers.gtklcd.probe()
     lcds += peephole.drivers.picolcd.probe()
+
+    if len(lcds) < 1:
+        logging.error("No LCD devices available.")
+        return -1
     dbus_lcds = []
 
     for lcd in lcds:
@@ -125,4 +129,4 @@ def main():
             lcd.stop()
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

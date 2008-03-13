@@ -20,9 +20,7 @@ class PicoLCDTest(unittest.TestCase):
         )
 
     def setUp(self):
-        self.picolcd = peephole.drivers.picolcd.PicoLCD()
-
-
+        self.picolcd = peephole.drivers.picolcd.PicoLCD(None)
 
     def testGenerateText(self):
         '''Maybe this should use a fixture packet rather than just generating
