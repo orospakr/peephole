@@ -41,5 +41,4 @@ Client Examples
 
 Shell:
 
-dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/PicoLCD ca.infoglobe.peephole.LCD.DisplayText string:0 string:"text on the display"
-
+dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/GTK ca.infoglobe.peephole.LCD.DisplayText int32:0 string:"Test text."
