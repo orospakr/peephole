@@ -78,6 +78,7 @@ class PicoLCDHardware(object):
     '''Wraps the USB connectivity for the PicoLCD 20x2 device.'''
 
     def __init__(self, lcd_device):
+        self.lcd_device = lcd_device
         if self.lcd_device is None:
             raise ValueError, _("PicoLCD not found.")
         self.lcd_handle = self.lcd_device.open()
@@ -100,7 +101,8 @@ class PicoLCDHardware(object):
         time.sleep(1) # also for shame
 
     def start(self):
-        self.start_button_listener()
+        #self.start_button_listener()
+        pass
 
     def write_command(self, packet):
         endp = self.lcd_interface.endpoints[1]
@@ -236,6 +238,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         so this class can be instantiated by the test suite.'''
         self.lcd = PicoLCDHardware(self.usb_device)
         self.lcd.start()
+        self.start_button_listener()
 
         self.write_vu_bars()
 
