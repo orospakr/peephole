@@ -50,8 +50,9 @@ class Player(gobject.GObject):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         system_bus = dbus.SystemBus()
-        self.lcd = system_bus.get_object('ca.infoglobe.peephole',
+        self.xlcd = system_bus.get_object('ca.infoglobe.peephole',
                                          '/ca/infoglobe/peephole/LCDs/PicoLCD')
+        self.lcd = dbus.Interface(self.xlcd, dbus_interface='ca.infoglobe.peephole.LCD')
 
     def run(self):
         try:
@@ -78,6 +79,7 @@ class Player(gobject.GObject):
             logging.error("... secondary.")
 
     def on_message(self, bus, message):
+        logging.debug(str(message))
         if  message.structure.get_name() == 'level':
             s = message.structure
             for i in range(0, len(s['peak'])):
