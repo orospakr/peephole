@@ -7,8 +7,6 @@ setup(
     packages = find_packages(),
     #    scripts = ['say_hello.py'],
 
-    # Project uses reStructuredText, so ensure that the docutils get
-    # installed or upgraded on the target machine
     install_requires = ['pyusb>=0.4.1'],
 
     #     package_data = {

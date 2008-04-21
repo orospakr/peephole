@@ -134,7 +134,9 @@ class PicoLCDHardware(object):
                 packet = self.lcd_handle.interruptRead(endp.address, 24, USB_INTERRUPTREAD_TIMEOUT)
             except usb.USBError: # it throws an exception if the timeout is hit.
                 continue
-
+            if len(packet) == 0:
+                logging.info(_('Received spurious empty packet.'))
+                continue
             # just for testing the infrared detector
             if packet[0] == PICOLCD_GET_IRDATA:
                 print packet
