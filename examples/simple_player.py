@@ -10,7 +10,7 @@ import gobject
 import dbus
 import dbus.mainloop.glib
 import logging
-
+import sys
 
 def iec_scale(db):
     '''Returns the meter deflection percentage given a dB value.'''
@@ -78,12 +78,15 @@ class Player(gobject.GObject):
         if secondary:
             logging.error("... secondary.")
 
-    def on_message(self, bus, message):
+    def on_message(self, bus, message ):
         logging.debug(str(message))
-        if  message.structure.get_name() == 'level':
+        if get_name_func() == 'level':
             s = message.structure
+            logging.debug("len is %i" % len(s['peak']))
+
             for i in range(0, len(s['peak'])):
                 #self.vus[i].freeze_notify()
+                logging.debug(s['decay'][i])
                 decay = clamp(s['decay'][i], -90.0, 0.0)
                 peak = clamp(s['peak'][i], -90.0, 0.0)
                 if peak > decay:
@@ -93,6 +96,7 @@ class Player(gobject.GObject):
                 #self.vus[i].set_property('peak', peak)
                 print (iec_scale(decay))/100
                 self.lcd.DrawVUMeter(((iec_scale(peak))/100))
+            # sys.exit()
 
                 # send to LCD!
         return True
