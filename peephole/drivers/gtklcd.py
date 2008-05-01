@@ -15,19 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pygtk
-pygtk.require('2.0')
-
 display_available = True
+
+try:
+    import pygtk
+    pygtk.require('2.0')
+except ImportError:
+    display_available = False
 
 import warnings
 warnings.filterwarnings('error', module='gtk')
 try:
-    import gtk
+    try:
+        import gtk
+    except ImportError:
+        display_available = False
 except Warning, e:
     display_available = False
 warnings.resetwarnings()
-import gtk
+
+if display_available:
+    import gtk
+else:
+    class gtk:
+        class Window:
+            pass
+    
 
 import logging
 
