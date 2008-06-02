@@ -37,6 +37,7 @@ PICOLCD_REPORT_INT_EE_WRITE = 0x32
 PICOLCD_GET_IRDATA = 0x21
 PICOLCD_GET_KEYDATA = 0x11
 PICOLCD_BACKLIGHT = 0x91
+PICOLCD_SET_LED_STATE = 0x81
 
 PICOLCD_KEYMAP = { 0x01: buttons.XK_plus,
                    0x02: buttons.XK_minus,
@@ -156,6 +157,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
         # this is done because the device is write-only, and we need to know what
         # the contents are for the "burn in" feature
         self.contents = [' ' * 20, ' ' * 20]
+        self.leds = [0, 0, 0, 0, 0, 0, 0]
         peephole.drivers.driver.Driver.__init__(self)
         self.usb_device = usb_device
 
@@ -330,6 +332,20 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.listener_thread.shutdown()
         logging.info("Request sent.  Please wait a moment...")
         self.listener_thread.join()
+
+    def set_leds(self, leds):
+        self.leds = leds
+        self.lcd.write_command(self.generate_setled_packet)
+
+    def generate_setled_packet(self):
+        fmt = 'BB'
+        led_byte = 0
+        for i in range(0, 7):
+            if self.leds[i] == 1:
+                led_byte += (2 ** (8 - i - 2))
+        print led_byte
+        packet = struct.pack(fmt, PICOLCD_SET_LED_STATE, led_byte)
+        return packet
 
     def get_name(self):
         return 'PicoLCD'

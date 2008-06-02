@@ -68,6 +68,14 @@ class PicoLCDTest(unittest.TestCase):
         [0x32, 0x00]
         )
 
+    PACKET_SET_LED_TURN_LED_2_ON = packet_fixture(
+        [0x81, 0x20]
+        )
+
+    PACKET_SET_LED_TURN_LED_7_ON = packet_fixture(
+        [0x81, 0x01]
+        )
+
     def setUp(self):
         self.picolcd = peephole.drivers.picolcd.PicoLCD(None)
 
@@ -96,7 +104,13 @@ class PicoLCDTest(unittest.TestCase):
     def writeInternalEepromTest(self):
         pass
 
+    def testGenerateLedPacket(self):
+        self.picolcd.leds = [0, 1, 0, 0, 0, 0, 0]
+        led2on_packet = self.picolcd.generate_setled_packet()
+        self.assertEquals(led2on_packet, self.PACKET_SET_LED_TURN_LED_2_ON)
 
 
-
-
+    def testGenerateLedPacketEdge(self):
+        self.picolcd.leds = [0, 0, 0, 0, 0, 0, 1]
+        led2on_packet = self.picolcd.generate_setled_packet()
+        self.assertEquals(led2on_packet, self.PACKET_SET_LED_TURN_LED_7_ON)

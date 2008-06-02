@@ -84,6 +84,11 @@ class DBusLCD(dbus.service.Object):
     def SetBacklight(self, status):
         self.lcd.set_backlight(status)
 
+    @dbus.service.method(dbus_interface=LCD_INTERFACE,
+                         in_signature='ai', out_signature='')
+    def SetLEDs(self, leds):
+        self.lcd.set_leds(leds)
+
 def main():
     print("Peephole.")
 
