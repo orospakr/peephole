@@ -36,6 +36,8 @@ class Driver(object):
     '''
     def __init__(self):
         self.button_cbs = []
+        self.button_created_cbs = []
+        self.buttons = []
 
 #     @virtual
 #     def scancode_to_keysym(self):
@@ -92,13 +94,20 @@ class Driver(object):
         '''This is called by Peephole's core, to register a callback function
         that your driver should call whenever a new button event is available.
 
-        This we be called before start().
+        This will be called before start().
 
         '''
         self.button_cbs.append(cb)
 
+    def addButton(self, button):
+        self.buttons.append(button)
+        self.new_button_added(button)
+
+    def add_button_created_callback(self, cb):
+        self.button_created_cbs.append(cb)
+
 #    @virtual
-    def fire_btn_cb(self, button):
+    def fire_btn_cb(self, button_keysym):
         '''You should call this inside your driver whenever you have new
         button presses available.
 
@@ -109,9 +118,14 @@ class Driver(object):
 
         (You can also manually iterate over button_cbs if you really want to...)'''
         for cb in self.button_cbs:
+            cb(button_keysym)
+
+    def new_button_added(self, button):
+        for cb in self.button_created_cbs:
             cb(button)
 
-
-
-
+    def pressButtonByName(self, name):
+        for button in self.buttons:
+            if button.name == name:
+                button.pressed()
 

@@ -7,10 +7,9 @@ import logging
 import struct
 import sys
 
-LCD_INTERFACE = 'ca.infoglobe.peephole.LCD'
+from peephole.dbus_button import DBusButton
 
-LCD_PATH_BASE = '/ca/infoglobe/peephole/LCDs/'
-
+from peephole.dbus_settings import *
 
 class DBusLCD(dbus.service.Object):
     '''Object exposing an LCD over D-Bus.
@@ -23,12 +22,24 @@ class DBusLCD(dbus.service.Object):
     '''
 
     def __init__(self, lcd, bus_or_tube, device_name):
-        dbus.service.Object.__init__(self, bus_or_tube, LCD_PATH_BASE + device_name)
+        self.device_name = device_name
+        dbus.service.Object.__init__(self, bus_or_tube, self.getPath())
         self.path = device_name
         self.bus_or_tube = bus_or_tube
         self.lcd = lcd
         lcd.add_button_callback(self.ButtonPressed)
-        #lcd.start_button_listener()
+        lcd.add_button_created_callback(self.addButton)
+
+        self.buttons = []
+        # find any already existing buttons...
+        for button in self.lcd.buttons:
+            self.addButton(button)
+
+    def getPath(self):
+        return LCD_PATH_BASE + self.device_name
+
+    def addButton(self, button):
+        self.buttons.append(DBusButton(self, button))
 
     @dbus.service.method(dbus_interface=LCD_INTERFACE,
                          in_signature='is', out_signature='')
@@ -65,3 +76,11 @@ class DBusLCD(dbus.service.Object):
                          in_signature='ai', out_signature='')
     def SetLEDs(self, leds):
         self.lcd.set_leds(leds)
+
+    @dbus.service.method(dbus_interface=LCD_INTERFACE,
+                         in_signature='', out_signature='as')
+    def GetButtons(self):
+        paths = []
+        for button in self.buttons:
+            paths.append(button.getPath())
+        return paths

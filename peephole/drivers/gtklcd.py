@@ -40,12 +40,13 @@ else:
     class gtk:
         class Window:
             pass
-    
+
 
 import logging
 
 import peephole.drivers.driver
 from peephole.drivers import buttons
+from peephole.drivers.button import Button
 
 LCD_COLUMNS = 20
 LCD_ROWS = 2
@@ -57,6 +58,19 @@ def probe():
         return []
     lcd = GTK()
     return [lcd]
+
+class GTKButton(gtk.Button):
+    def __init__(self, lcd_button):
+        self.lcd_button = button
+        gtk.Button.__init__(self, lcd_button.name)
+
+
+    def onClicked(self, widget, data=None):
+        pass
+
+
+
+
 
 class LCDWindow(gtk.Window):
     def __init__(self, gtklcd):
@@ -146,40 +160,41 @@ class LCDWindow(gtk.Window):
         directions_box.add(down_button)
 
     def ok_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_Return)
+        #self.gtklcd.fire_btn_cb(buttons.XK_Return)
+        self.gtklcd.pressButtonByName('Return')
 
     def plus_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_plus)
+        self.gtklcd.pressButtonByName('Plus')
 
     def minus_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_minus)
+        self.gtklcd.pressButtonByName('Minus')
 
     def f1_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_F1)
+        self.gtklcd.pressButtonByName('F1')
 
     def f2_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_F2)
+        self.gtklcd.pressButtonByName('F2')
 
     def f3_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_F3)
+        self.gtklcd.pressButtonByName('F3')
 
     def f4_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_F4)
+        self.gtklcd.pressButtonByName('F4')
 
     def f5_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_F5)
+        self.gtklcd.pressButtonByName('F5')
 
     def up_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_Up)
+        self.gtklcd.pressButtonByName('Up')
 
     def down_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_Down)
+        self.gtklcd.pressButtonByName('Down')
 
     def left_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_Left)
+        self.gtklcd.pressButtonByName('Left')
 
     def right_button_clicked(self, widget, data=None):
-        self.gtklcd.fire_btn_cb(buttons.XK_Right)
+        self.gtklcd.pressButtonByName('Right')
 
     def update(self, contents):
         #self.label.set_markup("")
@@ -201,6 +216,42 @@ class GTK(peephole.drivers.driver.Driver):
     def __init__(self):
         self.clear()
         peephole.drivers.driver.Driver.__init__(self)
+
+        self.return_button = Button(self, 'Return', buttons.XK_Return)
+        self.addButton(self.return_button)
+
+        self.plus_button = Button(self, 'Plus', buttons.XK_plus)
+        self.addButton(self.plus_button)
+
+        self.minus_button = Button(self, 'Minus', buttons.XK_minus)
+        self.addButton(self.minus_button)
+
+        self.f1_button = Button(self, 'F1', buttons.XK_F1)
+        self.addButton(self.f1_button)
+
+        self.f2_button = Button(self, 'F2', buttons.XK_F2)
+        self.addButton(self.f2_button)
+
+        self.f3_button = Button(self, 'F3', buttons.XK_F3)
+        self.addButton(self.f3_button)
+
+        self.f4_button = Button(self, 'F4', buttons.XK_F4)
+        self.addButton(self.f4_button)
+
+        self.f5_button = Button(self, 'F5', buttons.XK_F5)
+        self.addButton(self.f5_button)
+
+        self.up_button = Button(self, 'Up', buttons.XK_Up)
+        self.addButton(self.up_button)
+
+        self.down_button = Button(self, 'Down', buttons.XK_Down)
+        self.addButton(self.down_button)
+
+        self.left_button = Button(self, 'Left', buttons.XK_Left)
+        self.addButton(self.left_button)
+
+        self.right_button = Button(self, 'Right', buttons.XK_Right)
+        self.addButton(self.right_button)
 
     def start(self):
         self.window = LCDWindow(self)

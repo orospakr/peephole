@@ -58,22 +58,17 @@ def main():
 
     for lcd in lcds:
         logging.info("Initialising detected LCD: '%s'." % lcd.get_name())
+        dbus_lcds.append(DBusLCD(lcd, system_bus, lcd.get_name()))
         lcd.start()
         lcd.clear()
         lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
-    #my_lcd.burn_screen()
-    #my_lcd.draw_meter(0)
-    #my_lcd.test_spin()
         lcd.set_backlight(1)
-    #sys.exit()
-    # while True:
-    #     my_lcd.get_button()
-        dbus_lcds.append(DBusLCD(lcd, system_bus, lcd.get_name()))
+
 
     try:
         mainloop.run()
     except KeyboardInterrupt:
-        # program is now quitting, so...
+        # user pressed ^C, most likely.
         for lcd in lcds:
             lcd.stop()
 
