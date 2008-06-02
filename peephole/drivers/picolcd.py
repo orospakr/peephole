@@ -335,7 +335,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def set_leds(self, leds):
         self.leds = leds
-        self.lcd.write_command(self.generate_setled_packet)
+        self.lcd.write_command(self.generate_setled_packet())
 
     def generate_setled_packet(self):
         fmt = 'BB'
