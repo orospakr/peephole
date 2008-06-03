@@ -26,7 +26,7 @@ class DBusButton(dbus.service.Object):
     def Pressed(self):
         pass
 
-    @dbus.service.signal(dbus_interface=BUTTON_INTERFACE,
-                         signature='b')
+    @dbus.service.method(dbus_interface=BUTTON_INTERFACE,
+                         in_signature='b', out_signature='')
     def SetBacklight(self, state):
         self.button.setBacklight(state)

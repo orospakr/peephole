@@ -18,8 +18,13 @@ class ButtonTest(MockTestCase):
         pass
 
     def testShouldCallLCDButtonSetBacklightWhenSetBacklightCalled(self):
-        self.lcd.expects(once()).setButtonBacklight(same(self.button), eq(True))
+        self.backlight_cb_called = False
+        def backlight_cb(state):
+            self.failUnlessEqual(True, state)
+            self.backlight_cb_called = True
+        self.button.registerBacklightCallback(backlight_cb)
         self.button.setBacklight(True)
+        self.failUnlessEqual(True, self.backlight_cb_called)
 
     def testShouldCallRegisteredCallbackWhenPressed(self):
         self.pressed = False

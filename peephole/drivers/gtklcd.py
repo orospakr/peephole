@@ -59,18 +59,25 @@ def probe():
     lcd = GTK()
     return [lcd]
 
-class GTKButton(gtk.Button):
-    def __init__(self, lcd_button):
-        self.lcd_button = button
-        gtk.Button.__init__(self, lcd_button.name)
+class LCDButtonWidget(gtk.Button):
+    def __init__(self, lcd_button, custom_text=None):
+        self.lcd_button = lcd_button
+        if custom_text is None:
+            gtk.Button.__init__(self, lcd_button.name)
+        else:
+            gtk.Button.__init__(self, custom_text)
+        self.lcd_button.registerBacklightCallback(self.setBacklight)
+        self.connect("clicked", self.onClicked, None)
+        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("grey"))
 
+    def setBacklight(self, state):
+        if state == True:
+            self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("green"))
+        else:
+            self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("grey"))
 
     def onClicked(self, widget, data=None):
-        pass
-
-
-
-
+        self.lcd_button.pressed()
 
 class LCDWindow(gtk.Window):
     def __init__(self, gtklcd):
@@ -82,18 +89,13 @@ class LCDWindow(gtk.Window):
         panel_hbox.show()
         plusminusbox = gtk.VBox()
         panel_hbox.add(plusminusbox)
-        plusminusbox.show()
-        plus_button = gtk.Button("+")
-        plus_button.connect("clicked", self.plus_button_clicked, None)
+        plus_button = LCDButtonWidget(self.gtklcd.plus_button, '+')
         plusminusbox.add(plus_button)
-        plus_button.show()
-        minus_button = gtk.Button("-")
-        minus_button.connect("clicked", self.minus_button_clicked, None)
+        minus_button = LCDButtonWidget(self.gtklcd.minus_button, '-')
         plusminusbox.add(minus_button)
-        minus_button.show()
 
         lcdvbox = gtk.VBox()
-        #self.add(lcdvbox)
+
         panel_hbox.add(lcdvbox)
         lcdvbox.show()
         self.label = gtk.Label()
@@ -101,100 +103,50 @@ class LCDWindow(gtk.Window):
         self.label.show()
 
         fbuttons_hbox = gtk.HBox()
-        fbuttons_hbox.show()
         lcdvbox.add(fbuttons_hbox)
 
-        f1button = gtk.Button("F1")
-        f1button.connect("clicked", self.f1_button_clicked, None)
-        f1button.show()
+        f1button = LCDButtonWidget(self.gtklcd.f1_button)
         fbuttons_hbox.add(f1button)
-        f2button = gtk.Button("F2")
-        f2button.connect("clicked", self.f2_button_clicked, None)
-        f2button.show()
+
+        f2button = LCDButtonWidget(self.gtklcd.f2_button)
         fbuttons_hbox.add(f2button)
-        f3button = gtk.Button("F3")
-        f3button.connect("clicked", self.f3_button_clicked, None)
-        f3button.show()
+
+        f3button = LCDButtonWidget(self.gtklcd.f3_button)
         fbuttons_hbox.add(f3button)
-        f4button = gtk.Button("F4")
-        f4button.connect("clicked", self.f4_button_clicked, None)
-        f4button.show()
+
+        f4button = LCDButtonWidget(self.gtklcd.f4_button)
         fbuttons_hbox.add(f4button)
-        f5button = gtk.Button("F5")
-        f5button.connect("clicked", self.f5_button_clicked, None)
-        f5button.show()
+
+        f5button = LCDButtonWidget(self.gtklcd.f5_button)
         fbuttons_hbox.add(f5button)
 
         self.meter = gtk.ProgressBar()
         self.meter.set_orientation(gtk.PROGRESS_BOTTOM_TO_TOP)
         panel_hbox.add(self.meter)
-        self.meter.show()
 
         directions_box = gtk.VBox()
-        directions_box.show()
         panel_hbox.add(directions_box)
-        up_button = gtk.Button(u"↑")
-        up_button.connect("clicked", self.up_button_clicked, None)
-        up_button.show()
+
+        up_button = LCDButtonWidget(self.gtklcd.up_button, u"↑")
         directions_box.add(up_button)
+
         left_right_box = gtk.HBox()
         left_right_box.show()
         directions_box.add(left_right_box)
-        left_button = gtk.Button(u"←")
-        left_button.connect("clicked", self.left_button_clicked, None)
-        left_button.show()
-        left_right_box.add(left_button)
-        ok_button = gtk.Button("OK")
 
-        ok_button.show()
-        ok_button.connect("clicked", self.ok_button_clicked, None)
+        left_button = LCDButtonWidget(self.gtklcd.left_button, u"←")
+        left_right_box.add(left_button)
+
+        ok_button = LCDButtonWidget(self.gtklcd.return_button, "OK")
         left_right_box.add(ok_button)
-        right_button = gtk.Button(u"→")
-        right_button.connect("clicked", self.right_button_clicked, None)
-        right_button.show()
+
+        right_button = LCDButtonWidget(self.gtklcd.right_button, u"→")
         left_right_box.add(right_button)
 
-        down_button = gtk.Button(u"↓")
-        down_button.connect("clicked", self.down_button_clicked, None)
-        down_button.show()
+        down_button =LCDButtonWidget(self.gtklcd.down_button, u"↓")
         directions_box.add(down_button)
 
-    def ok_button_clicked(self, widget, data=None):
-        #self.gtklcd.fire_btn_cb(buttons.XK_Return)
-        self.gtklcd.pressButtonByName('Return')
-
-    def plus_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Plus')
-
-    def minus_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Minus')
-
-    def f1_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('F1')
-
-    def f2_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('F2')
-
-    def f3_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('F3')
-
-    def f4_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('F4')
-
-    def f5_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('F5')
-
-    def up_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Up')
-
-    def down_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Down')
-
-    def left_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Left')
-
-    def right_button_clicked(self, widget, data=None):
-        self.gtklcd.pressButtonByName('Right')
+        self.show_all()
 
     def update(self, contents):
         #self.label.set_markup("")
@@ -283,4 +235,3 @@ class GTK(peephole.drivers.driver.Driver):
 
     def get_name(self):
         return 'GTK'
-
