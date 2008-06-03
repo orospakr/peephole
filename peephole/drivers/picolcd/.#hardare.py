@@ -1,1 +1,0 @@
-orospakr@orospakr-laptop.25858:1212282333
