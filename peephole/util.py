@@ -1,4 +1,5 @@
 import logging
+import gobject
 
 def virtual(func):
     """This is a decorator which can be used to mark functions
@@ -13,3 +14,17 @@ def virtual(func):
     newFunc.__doc__ = func.__doc__
     newFunc.__dict__.update(func.__dict__)
     return newFunc
+
+class IdleObject(gobject.GObject):
+    """
+    Override gobject.GObject to always emit signals in the main thread
+    by emmitting on an idle handler
+
+    Cute hack by John Stowers <john.stowers@gmail.com>, under a permissive
+    license.
+    """
+    def __init__(self):
+        gobject.GObject.__init__(self)
+
+    def emit(self, *args):
+        gobject.idle_add(gobject.GObject.emit,self,*args)

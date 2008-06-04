@@ -45,7 +45,7 @@ class DeviceTest(pmock.MockTestCase):
     def testReceiveButtonEvent(self):
         packet = [0x11, 0x04, 0x00]
         button_result = self.sendEvent(packet)
-        self.failUnlessEqual(button_result, buttons.XK_F2)
+        self.failUnlessEqual(button_result, 0x04)
 
     def testReceiveSpuriousEmptyEvent(self):
         # check that we gracefully handle this weird case that

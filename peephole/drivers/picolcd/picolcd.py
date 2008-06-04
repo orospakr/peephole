@@ -28,19 +28,14 @@ from peephole.drivers.picolcd.factory import Factory
 
 from peephole.drivers.picolcd.consts import *
 
-def probe():
-    '''Returns PicoLCD objects for all the PicoLCDs found on
-    the system.'''
-
-    lcd_device = peephole.drivers.driver.get_usb_device(VENDOR_ID, DEVICE_ID)
-    if lcd_device is None:
-        return []
-    else:
-        pico = PicoLCD(lcd_device)
-        return [pico]
-
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
+
+    button_map = { 'F1': buttons.XK_F1, 'F2': buttons.XK_F2,
+                   'F3': buttons.XK_F3, 'F4': buttons.XK_F4,
+                   'F5': buttons.XK_F5,
+                   'Up': buttons.XK_Up, 'Down' : buttons.XK_Down}
+
 
     def __init__(self, usb_device, factory_mock=None):
         # these two strings contain the contents of the display as we know it.
@@ -123,7 +118,16 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.start_button_listener()
 
         self.vu_meter = self.factory.makeVUMeter(self)
-        self.vu_meter.write_vu_bars()
+        self.vu_meter.writeVUBars()
+
+        # buttons!
+#        self.f1_button = self.factory.makeButton(self, 'F1', buttons.XK_F1)
+        self.buttons = self.factory.makeButtons(self, self.button_map)
+
+    def findButtonByKeysym(self, keysym):
+        for b in self.buttons:
+            if b.keysym == keysym:
+                return b
 
     def set_text(self, text, row, col):
         # the +1s are because col is the column number, which is zero based.
@@ -158,8 +162,10 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def onButtonPressed(self, button):
         # legacy ButtonPressed event handlers...
+        keysym = PICOLCD_KEYMAP[button]
         for cb in self.button_cbs:
-            cb(button)
+            cb(keysym)
+        self.findButtonByKeysym(keysym).pressed()
 
     def start_button_listener(self):
         logging.info(_("Starting button listener thread."))

@@ -60,4 +60,4 @@ class Device(object):
                 if packet[1] == 0:
                     continue
                 logging.debug(_("Button pressed: x%02x" % packet[1]))
-                return PICOLCD_KEYMAP[packet[1]]
+                return packet[1]

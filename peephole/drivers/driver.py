@@ -56,13 +56,6 @@ class Driver(object):
         '''Set the string text at row and column of
         the display.'''
 
-    def add_button_callback(self, cb):
-        '''Adds a callback to be fired.
-
-        The callback will be threadsafe (it will of course need
-        the GIL).'''
-        self.button_cbs.add(cb)
-
     @virtual
     def get_lines(self):
         '''Returns the number of lines available on the display.
