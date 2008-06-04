@@ -29,14 +29,14 @@ Installation
 
 The installation procedure is provided by a standard Python
 distutils setup.py script.  However, until I add the
-necessary logic to setup.py, you have to copy the `Peephole.conf`
-file into:
+necessary logic to setup.py, you still have to copy the
+`Peephole.conf` file into:
 
-/etc/dbus-1/system.d
+/etc/dbus-1/system.d/
 
 And then copy the `ca.infoglobe.peephole.service` file into:
 
-/usr/share/dbus-1/system-services
+/usr/share/dbus-1/system-services/
 
 D-Bus API
 ~~~~~~~~~

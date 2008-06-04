@@ -47,7 +47,8 @@ class PicoLCDTest(MockTestCase):
 
         # buttons!
 
-        for (name, keysym) in PicoLCD.button_map.items():
+        for (name, keysym_and_led) in PicoLCD.button_map.items():
+            (keysym, led) = keysym_and_led
             new_button = self.mock()
             new_button.name = name
             new_button.keysym = keysym
@@ -55,7 +56,6 @@ class PicoLCDTest(MockTestCase):
             #self.factory.expects(once()).makeButton(same(self.picolcd), eq(name), eq(keysym))
 
         self.factory.expects(once()).makeButtons(same(self.picolcd), eq(PicoLCD.button_map)).will(return_value(self.buttons))
-
 
         self.device = self.mock()
         self.event_listener = self.mock()

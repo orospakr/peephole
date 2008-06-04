@@ -1,7 +1,7 @@
 from peephole.drivers.picolcd.event_listener import EventListener
 from peephole.drivers.picolcd.device import Device
 from peephole.drivers.picolcd.vu_meter import VUMeter
-from peephole.drivers.button import Button
+from peephole.drivers.picolcd.button import Button
 
 class Factory(object):
     def makeEventListener(self, device):
@@ -16,7 +16,8 @@ class Factory(object):
     def makeButton(self, lcd, name, keysym):
         return Button(lcd, name, keysym)
 
-    def makeButtons(self, lcd, button_names_and_keysyms):
+    def makeButtons(self, lcd, button_names_and_keysyms_and_leds):
         result = []
-        for (name, keysym) in button_names_and_keysyms.items():
-            result.append(Button(lcd, name, keysym))
+        for (name, keysym_and_led) in button_names_and_keysyms_and_leds.items():
+            keysym, led = keysym_and_led
+            result.append(Button(lcd, name, keysym, led))

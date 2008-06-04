@@ -31,10 +31,13 @@ from peephole.drivers.picolcd.consts import *
 class PicoLCD(peephole.drivers.driver.Driver):
     '''Represents a picoLCD device.'''
 
-    button_map = { 'F1': buttons.XK_F1, 'F2': buttons.XK_F2,
-                   'F3': buttons.XK_F3, 'F4': buttons.XK_F4,
-                   'F5': buttons.XK_F5,
-                   'Up': buttons.XK_Up, 'Down' : buttons.XK_Down}
+    button_map = { 'F1': (buttons.XK_F1, 5), 'F2': (buttons.XK_F2, 4),
+                   'F3': (buttons.XK_F3, 3), 'F4': (buttons.XK_F4, 2),
+                   'F5': (buttons.XK_F5, 1),
+                   'Up': (buttons.XK_Up, 6), 'Down' : (buttons.XK_Down, 6),
+                   'OK': (buttons.XK_Return, 6),
+                   'Left': (buttons.XK_Left, 6), 'Right': (buttons.XK_Right, 6),
+                   'Plus': (buttons.XK_plus, 0), 'Minus': (buttons.XK_minus, 0)}
 
 
     def __init__(self, usb_device, factory_mock=None):
@@ -210,9 +213,12 @@ class PicoLCD(peephole.drivers.driver.Driver):
         logging.info("Request sent.  Please wait a moment...")
         self.listener_thread.join()
 
+    def updateLeds(self):
+        self.lcd.write_command(self.generate_setled_packet())
+
     def set_leds(self, leds):
         self.leds = leds
-        self.lcd.write_command(self.generate_setled_packet())
+        self.updateLeds()
 
     def generate_setled_packet(self):
         fmt = 'BB'
