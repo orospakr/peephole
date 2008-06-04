@@ -70,7 +70,10 @@ class PicoLCDTest(MockTestCase):
 
         self.event_listener.expects(once()).connect(eq('buttonPressed'), bound_method(PicoLCD, 'onButtonPressed'))
         self.event_listener.expects(once()).start()
-
+        # this will have to be here until I factor out
+        # the packet generator(s).
+        # turning off all the LEDs by default:
+        self.device.expects(once()).write_command(eq('\x81\x00'))
         self.picolcd.start()
 
     def testStart(self):
@@ -122,8 +125,9 @@ class PicoLCDTest(MockTestCase):
         f5_button_mock = self.getButtonMockByKeysym(buttons.XK_F5)
         f5_button_mock.expects(once()).pressed()
 
-        self.picolcd.onButtonPressed(0x07)
-
+        self.picolcd.onButtonPressed(self.event_listener, 0x07)
+        # it expects the button object to reply by invoking...
+        self.picolcd.fire_btn_cb(buttons.XK_F5)
         self.failUnlessEqual(self.legacy_button_keysym, buttons.XK_F5)
 
     def testGenerateLedPacket(self):

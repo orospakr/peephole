@@ -123,9 +123,14 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.vu_meter = self.factory.makeVUMeter(self)
         self.vu_meter.writeVUBars()
 
+        self.updateLeds()
+
         # buttons!
 #        self.f1_button = self.factory.makeButton(self, 'F1', buttons.XK_F1)
         self.buttons = self.factory.makeButtons(self, self.button_map)
+
+        for b in self.buttons:
+            self.new_button_added(b)
 
     def findButtonByKeysym(self, keysym):
         for b in self.buttons:
@@ -163,11 +168,11 @@ class PicoLCD(peephole.drivers.driver.Driver):
         packet = self.generate_backlight_packet(status)
         self.lcd.write_command(packet)
 
-    def onButtonPressed(self, button):
+    def onButtonPressed(self, listener, button):
         # legacy ButtonPressed event handlers...
         keysym = PICOLCD_KEYMAP[button]
-        for cb in self.button_cbs:
-            cb(keysym)
+#        for cb in self.button_cbs:
+#            cb(keysym)
         self.findButtonByKeysym(keysym).pressed()
 
     def start_button_listener(self):
@@ -209,9 +214,9 @@ class PicoLCD(peephole.drivers.driver.Driver):
     def stop(self):
         '''Stop the driver.'''
         logging.info("Attempting to stop PicoLCD button listener thread...")
-        self.listener_thread.shutdown()
+        self.event_listener.shutdown()
         logging.info("Request sent.  Please wait a moment...")
-        self.listener_thread.join()
+        self.event_listener.join()
 
     def updateLeds(self):
         self.lcd.write_command(self.generate_setled_packet())

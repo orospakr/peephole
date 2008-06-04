@@ -1,7 +1,15 @@
 from peephole.util import IdleObject
 import threading
+import logging
+from gettext import gettext as _
+import gobject
 
 class EventListener(threading.Thread, IdleObject):
+
+    __gsignals__ = {
+        'buttonPressed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                           (gobject.TYPE_INT,))}
+
     def __init__(self, lcd):
         threading.Thread.__init__(self)
         IdleObject.__init__(self)

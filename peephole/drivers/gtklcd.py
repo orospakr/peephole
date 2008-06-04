@@ -40,6 +40,8 @@ else:
     class gtk:
         class Window:
             pass
+        class Button:
+            pass
 
 
 import logging

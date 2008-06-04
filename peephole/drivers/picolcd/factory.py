@@ -8,7 +8,7 @@ class Factory(object):
        return EventListener(device)
 
     def makeDevice(self, usb_device):
-        return Hardware(usb_device)
+        return Device(usb_device)
 
     def makeVUMeter(self, picolcd):
         return VUMeter(picolcd)
@@ -21,3 +21,4 @@ class Factory(object):
         for (name, keysym_and_led) in button_names_and_keysyms_and_leds.items():
             keysym, led = keysym_and_led
             result.append(Button(lcd, name, keysym, led))
+        return result

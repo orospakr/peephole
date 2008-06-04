@@ -99,11 +99,10 @@ class Driver(object):
     def add_button_created_callback(self, cb):
         self.button_created_cbs.append(cb)
 
-#    @virtual
     def fire_btn_cb(self, button_keysym):
         '''You should call this inside your driver whenever you have new
         button presses available.
-
+b
         The button callbacks expect one argument, in the form of an Peephole
         keysym, which is more or less the same as the X11 keysyms.  So, in your
         driver, use the appropriate value in peephole.drivers.buttons and call
