@@ -30,3 +30,13 @@ class DBusButton(dbus.service.Object):
                          in_signature='b', out_signature='')
     def SetBacklight(self, state):
         self.button.setBacklight(state)
+
+    @dbus.service.method(dbus_interface=BUTTON_INTERFACE,
+                         in_signature='', out_signature='s')
+    def GetName(self):
+        return self.button.name
+
+    @dbus.service.method(dbus_interface=BUTTON_INTERFACE,
+                         in_signature='', out_signature='i')
+    def GetX11Keysym(self):
+        return self.button.keysym
