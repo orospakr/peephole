@@ -3,11 +3,11 @@
 from setuptools import setup, find_packages
 setup(
     name = "Peephole",
-    version = "0.3",
+    version = "0.4",
     packages = find_packages(),
     #    scripts = ['say_hello.py'],
 
-    install_requires = ['pyusb>=0.4.1'],
+#    install_requires = ['pyusb>=0.4.1'],
 
     #     package_data = {
     #         # If any package contains *.txt or *.rst files, include them:
