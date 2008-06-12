@@ -18,7 +18,8 @@ setup(
 
     entry_points = {
         'console_scripts': [
-            'peephole = peephole.peepholed:main'
+            'peephole = peephole.peepholed:main',
+            'peephole-client = peephole.peephole_client:main'
             ]
         },
 
