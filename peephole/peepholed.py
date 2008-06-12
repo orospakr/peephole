@@ -30,6 +30,7 @@ import sys
 import peephole.drivers.picolcd
 import peephole.drivers.gtklcd
 from peephole.dbus_lcd import DBusLCD
+from peephole.dbus_peephole import DBusPeephole
 
 PEEPHOLE_WELL_KNOWN_NAME = 'ca.infoglobe.peephole'
 
@@ -63,6 +64,8 @@ def main():
         lcd.clear()
         lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
         lcd.set_backlight(1)
+
+    root_obj = DBusPeephole(dbus_lcds, system_bus)
 
     try:
         mainloop.run()
