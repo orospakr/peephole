@@ -30,6 +30,7 @@ import sys
 import peephole.drivers.picolcd
 import peephole.drivers.gtklcd
 from peephole.dbus_lcd import DBusLCD
+from peephole.dbus_peephole import DBusPeephole
 
 PEEPHOLE_WELL_KNOWN_NAME = 'ca.infoglobe.peephole'
 
@@ -84,6 +85,8 @@ def main():
 #             time.sleep(2)
 
         lcd.set_backlight(1)
+
+    root_obj = DBusPeephole(dbus_lcds, system_bus)
 
     try:
         mainloop.run()

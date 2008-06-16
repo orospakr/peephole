@@ -84,3 +84,8 @@ class DBusLCD(dbus.service.Object):
         for button in self.buttons:
             paths.append(button.getPath())
         return paths
+
+    @dbus.service.method(dbus_interface=LCD_INTERFACE,
+                         in_signature='', out_signature='s')
+    def GetName(self):
+        return self.lcd.get_name()

@@ -1,0 +1,62 @@
+a4 00 00 14 05 00 00 00 83 20 20 4d 65 6c 6f 63 68 65 42 6f 78 20 34 2e ".........  MelocheBox 4."
+a4 14 00 14 30 20 20 20 20 00 20 20 20 20 49 6e 66 6f 67 6c 6f 62 65 20 "....0    .    Infoglobe "
+a4 28 00 14 20 20 20 20 20 20 00 0a 00 01 00 c3 6f 74 74 61 77 61 2e 69 ".(..      ......ottawa.i"
+a4 3c 00 14 6e 66 6f 67 6c 6f 62 65 2e 63 61 20 00 20 20 20 20 20 20 20 ".<..nfoglobe.ca .       "
+a4 50 00 14 20 20 20 20 20 20 20 20 20 20 20 20 20 00 0f 00 00 00 e3 4c ".P..             ......L"
+a4 64 00 14 6f 61 64 69 6e 67 20 4c 69 6e 75 78 20 2e 2e 2e 2e 2e 2e 00 ".d..oading Linux ......."
+a4 78 00 14 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 ".x..                    "
+a4 8c 00 14 00 14 00 00 00 f3 20 20 41 70 72 69 6c 20 31 38 20 32 30 30 "..........  April 18 200"
+a4 a0 00 14 37 20 20 20 20 20 00 20 20 47 53 4b 20 42 72 6f 61 64 63 61 "....7     .  GSK Broadca"
+a4 b4 00 14 73 74 20 20 20 20 20 00 19 00 00 00 ff 20 20 4c 69 76 65 20 "....st     ......  Live "
+a4 c8 00 14 66 72 6f 6d 20 20 20 20 20 20 20 20 20 00 20 43 42 43 20 54 "....from         . CBC T"
+a4 dc 00 14 6f 72 6f 6e 74 6f 20 20 20 20 20 20 20 20 20 20 20 20 20 20 "....oronto              "
+ 
+ 
+ 
+ 
+ 
+# Splash file must have :splash as header.
+# Current compiled version support 2 lines of 20 characters each
+# Number of lines/columns can be changed in driver.h
+#
+# Format is:
+# (minutes) (seconds)
+# (next spash) (repeat)
+# (leds)
+# Text Line 1
+# Text Line 2
+# (minute) (seconds)
+# (next spash) (repeat)
+# (leds)
+# Text Line 1
+# Text Line 2
+:splash
+
+00 05 
+00 00 
+10000011
+  MelocheBox 4.0    
+    Infoglobe       
+
+00 10
+01 00
+11000011
+ottawa.infoglobe.ca  
+                                    
+00 15
+00 00 
+11100011
+Loading Linux ......
+                    
+00 20
+00 00  
+11110011
+  April 18 2007      
+  GSK Broadcast         
+
+00 25
+00 00 
+11111111
+  Live from                                     
+ CBC Toronto               
+
