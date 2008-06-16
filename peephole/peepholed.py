@@ -63,6 +63,27 @@ def main():
         lcd.start()
         lcd.clear()
         lcd.set_text("\x06\x05\x04\x03\x02\x01Peephole\x01\x02\x03\x04\x05\x06", 0, 0)
+#         import time
+#         for i in range(0, 12):
+#             string1 = ""
+
+#             begin = i * 20
+#             if begin == 0:
+#                 begin = 1
+#             end = (i + 1) * 20
+
+#             print "BEGIN AT : %s" % begin
+
+#             for n in range(begin, end):
+#                 string1 += chr(n)
+
+#             print len(string1)
+
+#             lcd.set_text(string1, 0, 0)
+#             lcd.set_text(hex(begin) + "    ", 1, 0)
+
+#             time.sleep(2)
+
         lcd.set_backlight(1)
 
     root_obj = DBusPeephole(dbus_lcds, system_bus)
