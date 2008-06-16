@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Peephole - an LCD D-Bus Service daemon.
-# Copyright (C) 2007 Infoglobe
+# Peephole - a D-Bus service providing access to small LCD panels
+# Copyright (C) 2007-2008 Andrew Clunis
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -1,5 +1,5 @@
-# Peephole - A D-Bus service for LCD displays
-# Copyright (C) 2007, 2008 Infoglobe
+# Peephole - a D-Bus service providing access to small LCD panels
+# Copyright (C) 2007-2008 Andrew Clunis
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
