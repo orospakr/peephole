@@ -40,9 +40,10 @@ def getButtons(selected_lcd, bus):
         button = dbus.Interface(button_proxy, dbus_interface=BUTTON_INTERFACE)
         button_name = button.GetName()
         buttons[button_name] = button
+    return buttons
 
 def main():
-    usage = "%prog: [--lcd=LCD] [--list] [--print-buttons] [--send-events]"
+    usage = "%prog: [--lcd=LCD], needs one of [--list] [--print-buttons]"
     parser = OptionParser(usage)
     parser.add_option("-L", "--lcd", dest="lcd",
                       help="LCD to interact with")
@@ -52,19 +53,23 @@ def main():
     parser.add_option("-b", "--print-buttons", action="store_true",
                       dest="print_buttons",
                       help="Print button events on stdout as they occur")
-    parser.add_option("-s", "--send-events", action="store_true",
-                      dest="send_events",
-                      help="Wait for input commands (set backlight) on stdin")
+    parser.add_option("-B", "--button", dest="button",
+                      help="Button to interact with, used with --set-button-backlight")
+    parser.add_option("-O", "--button-backlight-on", dest="button_backlight", action="store_true",
+                      help="Turn on button's (specified by --button) backlight")
+    parser.add_option("-o", "--button-backlight-off", dest="button_backlight", action="store_false",
+                      help="Turn off button's (specified by --button) backlight")
+
 
     (options, args) = parser.parse_args()
 
-    if not (options.list or options.print_buttons or options.send_events):
+    if not (options.list or options.print_buttons or (options.button_backlight is not None)):
         parser.error("You must specify an option.")
 
-
     mainloop = gobject.MainLoop()
-    bus = dbus.SystemBus()
+
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
 
     peep_proxy = bus.get_object(PEEPHOLE_WELL_KNOWN_NAME,
                                 PEEPHOLE_PATH)
@@ -97,7 +102,6 @@ def main():
     if options.lcd is not None:
         if options.lcd not in lcds:
             parser.error("That LCD does not exist.")
-#            sys.exit(-1)
         selected_lcd = lcds[options.lcd]
         print "Selected: '%s'" % options.lcd
     else:
@@ -105,23 +109,33 @@ def main():
             print "Fell back to default LCD: '%s'" % name
             selected_lcd = l
             break
+    buttons = getButtons(selected_lcd, bus)
 
-    if options.send_events:
-        ddsafdsafdsaf
+    if options.button_backlight is not None:
+        if options.button is None:
+            parser.error("You must specify --button")
+        if options.button not in buttons:
+            parser.error("That button does not exist.")
+        button = buttons[options.button]
+        button.SetBacklight(options.button_backlight)
 
-        while True:
-            s = sys.stdin.readline()
-            if not s:
-                break
-            items = s.split()
-            if items[0] == 'SetBacklight':
-                if items[2] == 'True':
-                    buttons[items[1]].SetBacklight(True)
-                else:
-                    buttons[items[1]].SetBacklight(False)
-            if items[0] == 'SetText':
-                pass
-        sys.exit(0)
+    if options.print_buttons:
+
+        class PressReceiver(object):
+            def __init__(self, button, name):
+                self.button = button
+                self.name = name
+
+            def pressed(self):
+                print self.name
+
+        for name, btn in buttons.items():
+            receiver = PressReceiver(btn, name)
+            btn.connect_to_signal("Pressed", receiver.pressed)
+
+        mainloop.run()
+
+    sys.exit(0)
 
 if __name__ == "__main__":
     sys.exit(main())
