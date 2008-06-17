@@ -34,6 +34,10 @@ class PicoLCDTest(MockTestCase):
         [0x81, 0x01]
         )
 
+    PACKET_FLASH_EEPROM = packet_fixture(
+        [0xa4, 0x28, 0x00, 0x03, 0x6C, 0x6F, 0x6C]
+        )
+
     def setUp(self):
         self.factory = self.mock()
         self.event_listener = self.mock()
@@ -112,8 +116,9 @@ class PicoLCDTest(MockTestCase):
         off_packet = self.picolcd.generate_backlight_packet(False)
         self.assertEquals(off_packet, self.PACKET_BACKLIGHT_OFF)
 
-    def writeInternalEepromTest(self):
-        pass
+    def testWriteInternalEeprom(self):
+        flash_packet = self.picolcd.generate_eeprom_flash_packet(0x28, 0x00, "lol")
+        self.assertEquals(flash_packet, self.PACKET_FLASH_EEPROM)
 
     def testButtonPressed(self):
         self.legacy_button_keysym = None

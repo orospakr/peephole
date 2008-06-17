@@ -47,7 +47,6 @@ class Device(object):
         time.sleep(1) # also for shame
 
     def start(self):
-        #self.start_button_listener()
         pass
 
     def write_command(self, packet):

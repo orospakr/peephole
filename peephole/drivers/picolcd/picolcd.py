@@ -237,3 +237,9 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def get_name(self):
         return 'PicoLCD'
+
+    def generate_eeprom_flash_packet(self, addr_hi, addr_lo, data):
+        fmt = 'BBBB%is' % len(data)
+#        print fmt
+        packet = struct.pack(fmt, PICOLCD_REPORT_INT_EE_WRITE, addr_hi, addr_lo, len(data), data)
+        return packet
