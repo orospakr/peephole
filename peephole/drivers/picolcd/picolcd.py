@@ -240,6 +240,20 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def generate_eeprom_flash_packet(self, addr_hi, addr_lo, data):
         fmt = 'BBBB%is' % len(data)
-#        print fmt
         packet = struct.pack(fmt, PICOLCD_REPORT_INT_EE_WRITE, addr_hi, addr_lo, len(data), data)
         return packet
+
+    def generate_splash_packet(self, line1, line2):
+        header_fmt = 'BBBBB'
+        leds = 0 # turn none of them on, for now.
+        minutes = 0
+        seconds = 5
+        wtf = 0
+        jump = 0
+        repeat = 0
+        header = struct.pack(header_fmt, seconds, wtf, jump, repeat, leds)
+        big_packet = header + line1 + line2
+
+        return self.generate_eeprom_flash_packet(0, 0, big_packet)
+        # split 'im up!
+

@@ -35,8 +35,14 @@ class PicoLCDTest(MockTestCase):
         )
 
     PACKET_FLASH_EEPROM = packet_fixture(
-        [0xa4, 0x28, 0x00, 0x03, 0x6C, 0x6F, 0x6C]
+        [0xA4, 0x28, 0x00, 0x03, 0x6C, 0x6F, 0x6C]
         )
+
+    SPLASH_LINE1 = "Lorem Ipsum Sit  ..."
+    SPLASH_LINE2 = " ... dolor.         "
+    PACKET_SET_SPLASH = packet_fixture(
+        [0xA4, 0x00, 0x00, 0x14, 0x05, 0x00, 0x00, 0x00]
+        ) + SPLASH_LINE1 + SPLASH_LINE2
 
     def setUp(self):
         self.factory = self.mock()
@@ -119,6 +125,10 @@ class PicoLCDTest(MockTestCase):
     def testWriteInternalEeprom(self):
         flash_packet = self.picolcd.generate_eeprom_flash_packet(0x28, 0x00, "lol")
         self.assertEquals(flash_packet, self.PACKET_FLASH_EEPROM)
+
+    def testWriteSplash(self):
+        splash_packet = self.picolcd.generate_splash_packet(self.SPLASH_LINE1, self.SPLASH_LINE2)
+        self.assertEquals(splash_packet, self.PACKET_SET_SPLASH)
 
     def testButtonPressed(self):
         self.legacy_button_keysym = None
