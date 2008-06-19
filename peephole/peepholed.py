@@ -24,6 +24,7 @@ import dbus.mainloop.glib
 import logging
 import struct
 import sys
+from optparse import OptionParser
 
 #  dbus-send --print-reply --type=method_call --system --dest='ca.infoglobe.peephole' /ca/infoglobe/peephole/LCDs/PicoLCD ca.infoglobe.peephole.LCD.DisplayText string:0 string:"stuffs"
 
@@ -36,6 +37,12 @@ PEEPHOLE_WELL_KNOWN_NAME = 'ca.infoglobe.peephole'
 
 def main():
     print("Peephole.")
+    usage = "%prog: [--disable <driver_name>]"
+
+    parser = OptionParser(usage)
+    parser.add_option("-d", "--disable", dest="disable", default="",
+                      help="Comma separated list of LCD drivers to disable")
+    (options, args) = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -48,9 +55,13 @@ def main():
     name = dbus.service.BusName(PEEPHOLE_WELL_KNOWN_NAME, system_bus)
     #my_lcd = peephole.drivers.picolcd.PicoLCD()
 
+    disabled_drivers = options.disable.split(',')
+
     lcds = []
-    lcds += peephole.drivers.gtklcd.probe()
-    lcds += peephole.drivers.picolcd.probe()
+    if "gtk" not in disabled_drivers:
+        lcds += peephole.drivers.gtklcd.probe()
+    if "picolcd" not in disabled_drivers:
+        lcds += peephole.drivers.picolcd.probe()
 
     if len(lcds) < 1:
         logging.error("No LCD devices available.")

@@ -4,4 +4,4 @@
 # don't forget to install the D-Bus service config file as
 # documented in README, though.
 
-PYTHONPATH=. peephole/peepholed.py
+PYTHONPATH=. peephole/peepholed.py $*
