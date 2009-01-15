@@ -213,10 +213,7 @@ class PicoLCD(peephole.drivers.driver.Driver):
 
     def stop(self):
         '''Stop the driver.'''
-        logging.info("Attempting to stop PicoLCD button listener thread...")
         self.event_listener.shutdown()
-        logging.info("Request sent.  Please wait a moment...")
-        self.event_listener.join()
 
     def updateLeds(self):
         self.lcd.write_command(self.generate_setled_packet())
