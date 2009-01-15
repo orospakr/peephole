@@ -55,7 +55,11 @@ class Device(object):
 
     def get_event_nonblock(self):
         endp = self.lcd_interface.endpoints[0]
-        packet = self.lcd_handle.interruptRead(endp.address, 24, FAST_USB_INTERRUPTREAD_TIMEOUT)
+        try:
+            packet = self.lcd_handle.interruptRead(endp.address, 24, FAST_USB_INTERRUPTREAD_TIMEOUT)
+        except usb.USBError, e:
+            # it throws an exception if there is no data to be read and the timeout expires
+            return None
         if packet[0] == PICOLCD_GET_KEYDATA:
             if packet[1] != 0:
                 return packet[1]
