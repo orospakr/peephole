@@ -53,6 +53,14 @@ class Device(object):
         endp = self.lcd_interface.endpoints[1]
         self.lcd_handle.interruptWrite(endp.address, packet, 1000)
 
+    def get_event_nonblock(self):
+        endp = self.lcd_interface.endpoints[0]
+        packet = self.lcd_handle.interruptRead(endp.address, 24, FAST_USB_INTERRUPTREAD_TIMEOUT)
+        if packet[0] == PICOLCD_GET_KEYDATA:
+            if packet[1] != 0:
+                return packet[1]
+        return None
+
     def get_event(self, should_i_stop):
         '''Blocks until a PicoLCD event is detected, and returns it.'''
         endp = self.lcd_interface.endpoints[0]

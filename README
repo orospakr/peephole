@@ -8,6 +8,7 @@ Dependencies
 python-dbus
 python-usb (aka python-pyusb)
 python-gobject
+python-setuptools
 
 python-nose (aka nosetests), python-pmock, and python-coverage for
 running the test suite
