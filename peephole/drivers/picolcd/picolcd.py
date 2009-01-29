@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import usb
-import threading
 import logging
 import struct
 import sys
@@ -176,14 +175,10 @@ class PicoLCD(peephole.drivers.driver.Driver):
         self.findButtonByKeysym(keysym).pressed()
 
     def start_button_listener(self):
-        logging.info(_("Starting button listener thread."))
-
-#        self.listener_thread = PicoLCDButtonListener(self.lcd, self.button_cbs)
         self.event_listener = self.factory.makeEventListener(self.lcd)
         self.event_listener.connect('buttonPressed', self.onButtonPressed)
         self.event_listener.start()
         #time.sleep(3)
-        logging.info(_("Thread started."))
 
     def get_lines(self):
         '''The PicoLCD 20x2 always has two lines -- who-da thunk it?'''
